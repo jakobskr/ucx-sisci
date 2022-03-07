@@ -95,8 +95,6 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     /* NOTE: does not return any error messages of any kind */
     SCIDisconnectDataInterrupt(ans_interrupt, SCI_NO_FLAGS, &sci_error);
 
-    sleep(1);
-
     printf("callback done \n");
     return SCI_CALLBACK_CANCEL;
 }
@@ -190,7 +188,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     self->device_addr = nodeID;
     self->segment_id = 13337;
-    self->send_size = 262144; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
+    self->send_size = 131072; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
 
     
     for(ssize_t i = 0; i < SCI_MAX_EPS; i++) {
