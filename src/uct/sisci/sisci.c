@@ -560,7 +560,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     ucs_status_t status;
     sisci_packet_t* packet = (sisci_packet_t*) iface->recv_buffer; 
     
-    for (size_t i = 0; i < 2; i++)
+    for (size_t i = 0; i < 1; i++)
     {
         
         if(iface->sci_fds[i].status != 1) {

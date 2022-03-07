@@ -18,7 +18,7 @@
 #define ADAPTER_NO 0
 #define SCI_NO_FLAGS 0
 #define SCI_NO_CALLBACK 0
-#define SCI_MAX_EPS 10
+#define SCI_MAX_EPS 5
 
 #define SISCI_STATUS_WRITING_DONE 1
 #define SCI_PACKET_SIZE sizeof(sisci_packet_t)
