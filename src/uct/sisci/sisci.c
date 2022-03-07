@@ -563,13 +563,13 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     
         
         if(iface->sci_fds[i].status != 1) {
-            return;
+            return 0 ;
         }
 
         packet = (sisci_packet_t*) iface->sci_fds[i].buf;
 
         if (packet->status != 1) {
-            return;
+            return 0;
         }
 
 
