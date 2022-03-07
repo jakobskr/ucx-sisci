@@ -559,9 +559,8 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     int count = 0;
     ucs_status_t status;
     sisci_packet_t* packet; 
+    ssize_t i = 0;
     
-    for (size_t i = 0; i < SCI_MAX_EPS; i++)
-    {
         
         if(iface->sci_fds[i].status != 1) {
             continue;
@@ -596,7 +595,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             packet->length = 0;*/
             memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
         }
-    }
+    
     
     //usleep(500000);
     return count;
