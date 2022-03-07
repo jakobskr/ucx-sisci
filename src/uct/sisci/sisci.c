@@ -42,6 +42,64 @@ static ucs_config_field_t uct_sci_iface_config_table[] = {
     NULL
 };*/
 
+
+sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interrupt, void* data, unsigned int length, sci_error_t sci_error) {
+    sci_remote_data_interrupt_t ans_interrupt;
+    //sci_error_t sci_error;
+    con_ans_t   answer;
+    conn_req_t* request = (conn_req_t*) data;
+    uct_sci_iface_t* iface = (uct_sci_iface_t*) arg;
+    uct_sci_md_t* md = ucs_derived_of(iface->super.md, uct_sci_md_t); 
+    size_t i;
+
+    printf("%d expected %zd ret_int %d  ret_node %d \n", length, sizeof(conn_req_t), request->node_id, request->interrupt);
+
+
+    do {
+        SCIConnectDataInterrupt(md->sci_virtual_device, &ans_interrupt, request->node_id, 0, request->interrupt, 1000, 0, &sci_error);
+        printf("waiting to connect to %d\n", request->interrupt);
+    } while (sci_error != SCI_ERR_OK);
+
+    printf("connected to answer request\n");
+
+
+    //todo add spin lock:
+
+    /*   Enter critical   */
+
+    for (i = 0; i < SCI_MAX_EPS; i++)
+    {
+        if(iface->sci_fds[i].status == 0) {
+            iface->sci_fds[i].status = 2;
+            break;
+        }
+    }
+    /*  leave critical  */
+    
+
+    answer.node_id = iface->device_addr;
+    answer.segment_id = iface->sci_fds[i].segment_id;
+
+    printf("sending %d %d \n", iface->device_addr, iface->sci_fds[i].segment_id);
+
+    SCITriggerDataInterrupt(ans_interrupt, (void *) &answer, sizeof(answer), SCI_NO_FLAGS, &sci_error);
+
+    if(sci_error != SCI_ERR_OK) {
+        printf("SCI Trigger Interrupt: %s/n", SCIGetErrorString(sci_error));
+    }    
+
+    /*  set status to ready  */ 
+
+    iface->sci_fds[i].status = 1;
+
+    /* NOTE: does not return any error messages of any kind */
+    SCIDisconnectDataInterrupt(ans_interrupt, SCI_NO_FLAGS, &sci_error);
+
+
+    printf("callback done \n");
+    return SCI_CALLBACK_CANCEL;
+}
+
 int sci_opened = 0;
 int iface_query_printed = 0;
 
@@ -96,6 +154,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     sci_error_t sci_error;
     ucs_status_t status;
     unsigned dma_seg_id;
+    sci_cb_data_interrupt_t callback = conn_handler;
 
     uct_sci_md_t * sci_md = ucs_derived_of(md, uct_sci_md_t);
 
@@ -109,7 +168,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     }
 
 
-    
+
 
     UCS_CLASS_CALL_SUPER_INIT(
             uct_base_iface_t, &uct_sci_iface_ops, &uct_base_iface_internal_ops,
@@ -130,41 +189,43 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     self->device_addr = nodeID;
     self->segment_id = 13337;
-    self->send_size = 2097152; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
-
-
-    SCICreateSegment(sci_md->sci_virtual_device, &self->local_segment, self->segment_id, self->send_size, NULL, NULL, 0, &sci_error);
-    
-    //TODO: 
-    if(sci_error == SCI_ERR_SEGMENTID_USED) {
-        self->segment_id = ucs_generate_uuid(trash);
-        SCICreateSegment(sci_md->sci_virtual_device, &self->local_segment, self->segment_id, self->send_size, NULL, NULL, 0, &sci_error);
-    }
+    self->send_size = 262144; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
 
     
-    if (sci_error != SCI_ERR_OK) { 
-        printf("SCI_CREATE_SEGMENT: %s\n", SCIGetErrorString(sci_error));
-        return UCS_ERR_NO_RESOURCE;
-    }
+    for(ssize_t i = 0; i < SCI_MAX_EPS; i++) {
+        int segment_id = ucs_generate_uuid(trash);
+        self->sci_fds[i].status = 0;
+        self->sci_fds[i].size = self->send_size;
+        self->sci_fds[i].segment_id = segment_id;
 
-    SCIPrepareSegment(self->local_segment, 0, 0, &sci_error);
-    if (sci_error != SCI_ERR_OK) { 
-        printf("SCI_PREPARE_SEGMENT: %s\n", SCIGetErrorString(sci_error));
-        return UCS_ERR_NO_RESOURCE;
 
-    }
+        SCICreateSegment(sci_md->sci_virtual_device, &self->sci_fds[i].local_segment, segment_id, self->send_size, NULL, NULL, 0, &sci_error);
+      
+        if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_CREATE_SEGMENT: %s\n", SCIGetErrorString(sci_error));
+            return UCS_ERR_NO_RESOURCE;
+        }
 
-    SCISetSegmentAvailable(self->local_segment, 0, 0, &sci_error);
-    if (sci_error != SCI_ERR_OK) { 
-        printf("SCI_SET_AVAILABLE: %s\n", SCIGetErrorString(sci_error));
-        return UCS_ERR_NO_RESOURCE;
-    }
+        SCIPrepareSegment(self->sci_fds[i].local_segment, 0, 0, &sci_error);
+        if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_PREPARE_SEGMENT: %s\n", SCIGetErrorString(sci_error));
+            return UCS_ERR_NO_RESOURCE;
 
-    self->recv_buffer = (void*) SCIMapLocalSegment(self->local_segment, &self->local_map, 0, self->send_size, NULL,0, &sci_error);
-   
-    if (sci_error != SCI_ERR_OK) { 
-        printf("SCI_MAP_LOCAL_SEG: %s\n", SCIGetErrorString(sci_error));
-        return UCS_ERR_NO_RESOURCE;
+        }
+
+        SCISetSegmentAvailable(self->sci_fds[i].local_segment, 0, 0, &sci_error);
+        if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_SET_AVAILABLE: %s\n", SCIGetErrorString(sci_error));
+            return UCS_ERR_NO_RESOURCE;
+        }
+
+        self->sci_fds[i].buf = (void*) SCIMapLocalSegment(self->sci_fds[i].local_segment, &self->sci_fds[i].map, 0, self->send_size, NULL,0, &sci_error);
+    
+        if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_MAP_LOCAL_SEG: %s\n", SCIGetErrorString(sci_error));
+            return UCS_ERR_NO_RESOURCE;
+        }
+
     }
 
 
@@ -196,6 +257,20 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     if(sci_error != SCI_ERR_OK) {
         printf("DMA map segment: %s \n", SCIGetErrorString(sci_error));
+        return UCS_ERR_NO_RESOURCE;
+    } 
+
+
+
+    /*------------------------- INTERRUPTS --------------------------------- */
+    //TODO
+
+    SCICreateDataInterrupt(sci_md->sci_virtual_device, &self->interrupt, 0, &self->segment_id,  
+                            callback, self, SCI_FLAG_USE_CALLBACK, &sci_error);
+
+
+    if(sci_error != SCI_ERR_OK) {
+        printf("SCI CREATE INTERRUPT: %s %d\n", SCIGetErrorString(sci_error), SCI_FLAG_USE_CALLBACK);
         return UCS_ERR_NO_RESOURCE;
     } 
 
@@ -471,53 +546,57 @@ void uct_sci_iface_progress_enable(uct_iface_h iface, unsigned flags) {
 }
 
 
-static void uct_sci_process_recv(uct_iface_h tl_iface) {
+/*static void uct_sci_process_recv(uct_iface_h tl_iface) {
     uct_sci_iface_t* iface = ucs_derived_of(tl_iface, uct_sci_iface_t);
-    sisci_packet_t* packet = (sisci_packet_t*) iface->recv_buffer;
+    sisci_packet_t* packet; // (sisci_packet_t*) iface->recv_buffer;
     ucs_status_t status;
 
-    assert(packet->status == 1);
 
-    packet->status = 2;
-    status = uct_iface_invoke_am(&iface->super, packet->am_id, iface->recv_buffer + sizeof(sisci_packet_t), packet->length,0);
-    
-
-    //DEBUG_PRINT("invoke status %d ", status);
-    DEBUG_PRINT("invoke: %d length: %d from %d\n", status,  packet->length,  ((sisci_packet_t*) iface->recv_buffer)->am_id );
-    //printf("sizeof struct %zd sizeof struct members: %zd\n", sizeof(sisci_packet_t), sizeof(unsigned) + sizeof(uint8_t)*2);
-
-    if(status == UCS_INPROGRESS) {
-        DEBUG_PRINT("UCS_IN_PROGRESS\n");
-    }
-
-    //usleep(500000);
-    
-    if(status == UCS_OK) {
-
-        DEBUG_PRINT("status == UCS_OK, clear buffers\n");
-
-        /*packet->am_id = 0;
-        packet->status = 0;
-        packet->length = 0;*/
-        memset(iface->recv_buffer, 0 ,packet->length + SCI_PACKET_SIZE);
-    }
-
-
-}
+}*/
 
 unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     uct_sci_iface_t* iface = ucs_derived_of(tl_iface, uct_sci_iface_t);
     int count = 0;
-
+    ucs_status_t status;
     sisci_packet_t* packet = (sisci_packet_t*) iface->recv_buffer; 
     
-    if (packet->status == 1)
+    for (size_t i = 0; i < SCI_MAX_EPS; i++)
     {
+        
+        if(iface->sci_fds[i].status != 1) {
+            continue;
+        }
 
-        DEBUG_PRINT("recv: AMID %d, Length %d!\n", packet->am_id, packet->length);
-        uct_sci_process_recv(tl_iface);
-        DEBUG_PRINT("after recv: AMID %d length %d\n", packet->am_id, packet->length);
 
+        packet = (sisci_packet_t*) iface->sci_fds[i].buf;
+
+        if (packet->status != 1) {
+            continue;
+        }
+
+
+        status = uct_iface_invoke_am(&iface->super, packet->am_id, iface->sci_fds[i].buf + sizeof(sisci_packet_t), packet->length,0);
+    
+
+        //DEBUG_PRINT("invoke status %d ", status);
+        DEBUG_PRINT("invoke: %d length: %d from %d\n", status,  packet->length,  packet->am_id );
+        //printf("sizeof struct %zd sizeof struct members: %zd\n", sizeof(sisci_packet_t), sizeof(unsigned) + sizeof(uint8_t)*2);
+
+        if(status == UCS_INPROGRESS) {
+            DEBUG_PRINT("UCS_IN_PROGRESS\n");
+        }
+
+        //usleep(500000);
+        
+        if(status == UCS_OK) {
+
+            DEBUG_PRINT("status == UCS_OK, clear buffers\n");
+
+            /*packet->am_id = 0;
+            packet->status = 0;
+            packet->length = 0;*/
+            memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
+        }
     }
     
     //usleep(500000);
