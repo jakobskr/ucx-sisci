@@ -95,6 +95,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     /* NOTE: does not return any error messages of any kind */
     SCIDisconnectDataInterrupt(ans_interrupt, SCI_NO_FLAGS, &sci_error);
 
+    sleep(1);
 
     printf("callback done \n");
     return SCI_CALLBACK_CANCEL;
@@ -559,17 +560,19 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     int count = 0;
     ucs_status_t status;
     sisci_packet_t* packet; 
-    ssize_t i = 0;
     
+
+    for (size_t i = 0; i < SCI_MAX_EPS; i++)
+    {
         
         if(iface->sci_fds[i].status != 1) {
-            return 0 ;
+            continue;
         }
 
         packet = (sisci_packet_t*) iface->sci_fds[i].buf;
 
         if (packet->status != 1) {
-            return 0;
+            continue;
         }
 
 
@@ -595,7 +598,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             packet->length = 0;*/
             memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
         }
-    
+    }
     
     //usleep(500000);
     return count;
