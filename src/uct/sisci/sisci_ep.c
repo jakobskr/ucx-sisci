@@ -17,6 +17,13 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_ep_t)
         printf("SCI_UNMAP_SEGMENT: %s\n", SCIGetErrorString(sci_error));
     }
 
+    SCIUnmapSegment(self->ctl_map, 0, &sci_error);
+    self->sci_ctl = NULL;
+
+    if (sci_error != SCI_ERR_OK) { 
+        printf("SCI_UNMAP_CTL: %s\n", SCIGetErrorString(sci_error));
+    }
+
     SCIDisconnectSegment(self->remote_segment, 0, &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
