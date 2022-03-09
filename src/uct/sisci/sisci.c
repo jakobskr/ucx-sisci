@@ -307,6 +307,29 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
         printf("IFACE CLOSE, Failed to remove dma queue: %s\n", SCIGetErrorString(sci_error));
     }
 
+    for(ssize_t i = 0; i < SCI_MAX_EPS; i++) {
+        self->sci_fds[i].status = 3;
+        SCIUnmapSegment(self->sci_fds[i].map, 0, &sci_error);
+    
+        if (sci_error != SCI_ERR_OK) { 
+        printf("SCI_UNMAP_SEGMENT: %s\n", SCIGetErrorString(sci_error));
+        }
+
+        SCISetSegmentUnavailable(self->sci_fds[i].local_segment, 0,SCI_FLAG_FORCE_DISCONNECT,&sci_error);
+
+        if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_SET_SEGMENT_UN: %s\n", SCIGetErrorString(sci_error));
+        }
+
+        SCIRemoveSegment(self->sci_fds[i].local_segment, 0 , &sci_error);
+
+        if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_REMOVE_SEGMENT: %s\n", SCIGetErrorString(sci_error));
+        }
+
+        self->sci_fds[i].buf = NULL;
+    
+    }
 
     ucs_mpool_cleanup(&self->msg_mp, 1);
 
