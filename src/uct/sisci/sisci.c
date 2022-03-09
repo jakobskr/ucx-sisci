@@ -52,7 +52,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     uct_sci_md_t* md = ucs_derived_of(iface->super.md, uct_sci_md_t); 
     size_t i;
 
-    printf("%d expected %zd ret_int %d  ret_node %d \n", length, sizeof(conn_req_t), request->node_id, request->interrupt);
+    //printf("%d expected %zd ret_int %d  ret_node %d \n", length, sizeof(conn_req_t), request->node_id, request->interrupt);
 
 
     do {
@@ -60,7 +60,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
         printf("waiting to connect to %d\n", request->interrupt);
     } while (sci_error != SCI_ERR_OK);
 
-    printf("connected to answer request\n");
+    //printf("connected to answer request\n");
 
 
     //todo add spin lock:
@@ -80,7 +80,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     answer.node_id = iface->device_addr;
     answer.segment_id = iface->sci_fds[i].segment_id;
 
-    printf("sending %d %d \n", iface->device_addr, iface->sci_fds[i].segment_id);
+    //printf("sending %d %d \n", iface->device_addr, iface->sci_fds[i].segment_id);
 
     SCITriggerDataInterrupt(ans_interrupt, (void *) &answer, sizeof(answer), SCI_NO_FLAGS, &sci_error);
 
@@ -95,7 +95,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     /* NOTE: does not return any error messages of any kind */
     SCIDisconnectDataInterrupt(ans_interrupt, SCI_NO_FLAGS, &sci_error);
 
-    printf("callback done \n");
+    //printf("callback done \n");
     return SCI_CALLBACK_CANCEL;
 }
 

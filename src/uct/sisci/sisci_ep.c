@@ -63,8 +63,8 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
         SCIConnectDataInterrupt(md->sci_virtual_device, &req_interrupt, node_id, 0, segment_id, 0, 0, &sci_error);
     } while (sci_error != SCI_ERR_OK);
 
-    printf("connected to remote interrupt!, ret_int %d\n", local_interrupt_id);
-    printf("size of answer %zd size of struct answer %zd\n", sizeof(answer), sizeof(con_ans_t));
+    //printf("connected to remote interrupt!, ret_int %d\n", local_interrupt_id);
+    //printf("size of answer %zd size of struct answer %zd\n", sizeof(answer), sizeof(con_ans_t));
     request.status = 1;
     request.interrupt = local_interrupt_id;
     request.node_id   = iface->device_addr;
@@ -86,7 +86,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
         return UCS_ERR_NO_RESOURCE;
     }
 
-    printf("sent interrupt of %zd to %d\n", sizeof(request), segment_id);
+    //printf("sent interrupt of %zd to %d\n", sizeof(request), segment_id);
               
 
     SCIWaitForDataInterrupt(ans_interrupt, (void*) &answer, &ans_length,0, 0, &sci_error);
@@ -97,7 +97,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
     }        
 
 
-    printf("node %d segment %d\n", answer.node_id, answer.segment_id);
+    //printf("node %d segment %d\n", answer.node_id, answer.segment_id);
 
 
     self->remote_node_id = answer.node_id;
