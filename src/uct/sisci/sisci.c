@@ -57,12 +57,11 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
 
     do {
         SCIConnectDataInterrupt(md->sci_virtual_device, &ans_interrupt, request->node_id, 0, request->interrupt, 1000, 0, &sci_error);
-        printf("waiting to connect to %d\n", request->interrupt);
+        //printf("waiting to connect to %d\n", request->interrupt);
     } while (sci_error != SCI_ERR_OK);
 
     //printf("connected to answer request\n");
-
-
+    
     //todo add spin lock:
 
     /*   Enter critical   */
