@@ -46,6 +46,9 @@ typedef struct sci_map_holder {
     volatile unsigned int* mapped;
 } sci_map_holder_t;
 
+typedef struct sci_ctl {
+    uint8_t status;
+}   sci_ctl_t;
 
 /*
     sci file desctriptor, each endpoint connects to a different region.
