@@ -315,7 +315,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
         printf("SCI_UNMAP_SEGMENT: %s\n", SCIGetErrorString(sci_error));
         }
 
-        SCISetSegmentUnavailable(self->sci_fds[i].local_segment, 0,SCI_FLAG_FORCE_DISCONNECT,&sci_error);
+        SCISetSegmentUnavailable(self->sci_fds[i].local_segment, 0,0,&sci_error);
 
         if (sci_error != SCI_ERR_OK) { 
             printf("SCI_SET_SEGMENT_UN: %s\n", SCIGetErrorString(sci_error));
