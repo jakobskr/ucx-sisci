@@ -239,12 +239,12 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     sisci_packet_t* packet = ep->buf; 
 
 
-    /* NOTE: This check adds around 1 usec of delay per message.*/
-     
-    /*if(packet->status != 0) { 
+    /* NOTE: This check adds around 1 usec of delay per message. */
+    
+    if(packet->status != 0) { 
         //printf("Error sending to %d: recv buffer not empty\n", id);
         return UCS_ERR_NO_RESOURCE;
-    }*/
+    }
 
     //printf("sizeof adress %zd sizeof unsigned %zd size of uint %zd size of void %zd\n", sizeof(uct_sicsci_ep_addr_t),sizeof(length), sizeof(uint), sizeof(void*));
     
