@@ -16,13 +16,6 @@ static uct_iface_ops_t uct_sci_iface_ops;
 static uct_component_t uct_sci_component;
 
 
-static ucs_mpool_ops_t uct_sci_mpool_ops = {
-    .chunk_alloc   = ucs_mpool_chunk_malloc,
-    .chunk_release = ucs_mpool_chunk_free,
-    .obj_init      = NULL,
-    .obj_cleanup   = NULL,
-    .obj_str       = NULL
-};
 
 static ucs_config_field_t uct_sci_iface_config_table[] = {
     {"", "MAX_NUM_EPS=32", NULL,
@@ -280,11 +273,6 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         return status;
     }
 
-    status = ucs_mpool_init(
-            &self->msg_mp, 0, self->send_size, align_offset, alignment,
-            10, /* 2 elements are enough for most of communications */
-            10, &uct_sci_mpool_ops, "sci_msg_desc");
-
 
 
     DEBUG_PRINT("iface_addr: %d dev_addr: %d segment_size %zd\n", self->segment_id, self->device_addr, self->send_size);
@@ -329,8 +317,6 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
         self->sci_fds[i].buf = NULL;
     
     }
-
-    ucs_mpool_cleanup(&self->msg_mp, 1);
 
     uct_base_iface_progress_disable(&self->super.super,
                                     UCT_PROGRESS_SEND |
