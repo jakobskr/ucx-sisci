@@ -640,7 +640,8 @@ static ucs_status_t uct_sci_iface_query(uct_iface_h tl_iface, uct_iface_attr_t *
     attr->cap.flags =   UCT_IFACE_FLAG_CONNECT_TO_IFACE | 
                         UCT_IFACE_FLAG_AM_SHORT         |
                         UCT_IFACE_FLAG_CB_SYNC          |
-                        UCT_IFACE_FLAG_AM_BCOPY         | 
+                        UCT_IFACE_FLAG_AM_BCOPY         |
+                        UCT_IFACE_FLAG_PENDING          |
                         UCT_IFACE_FLAG_AM_ZCOPY;
     attr->cap.event_flags  = 0;//UCT_IFACE_FLAG_EVENT_SEND_COMP |
                              //UCT_IFACE_FLAG_EVENT_RECV      |
@@ -665,7 +666,7 @@ static ucs_status_t uct_sci_iface_query(uct_iface_h tl_iface, uct_iface_attr_t *
     attr->cap.am.max_hdr   = 100;
 
 
-    attr->latency                 = ucs_linear_func_make(20, 40);
+    attr->latency                 = 0;
     attr->bandwidth.dedicated     = 10 * UCS_MBYTE;
     attr->bandwidth.shared        = 0;
     attr->overhead                = 10e-9;
