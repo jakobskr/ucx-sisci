@@ -196,7 +196,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     self->device_addr = nodeID;
     self->segment_id = ucs_generate_uuid(trash);
-    self->send_size = 10000; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
+    self->send_size = 100000; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
 
     
     for(ssize_t i = 0; i < SCI_MAX_EPS; i++) {
@@ -623,6 +623,10 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             /*packet->am_id = 0;            
             packet->length = 0;*/
             //memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
+        }
+
+        else {
+            printf("something went wrong %d\n", status);
         }
     }
     
