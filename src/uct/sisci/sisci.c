@@ -605,7 +605,6 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         status = uct_iface_invoke_am(&iface->super, packet->am_id, iface->sci_fds[i].buf + sizeof(sisci_packet_t), packet->length,0);
     
 
-        DEBUG_PRINT("invoke status %d ", status);
         //printf("sizeof struct %zd sizeof struct members: %zd\n", sizeof(sisci_packet_t), sizeof(unsigned) + sizeof(uint8_t)*2);
 
         if(status == UCS_INPROGRESS) {
@@ -622,7 +621,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             SCIFlush(NULL, SCI_NO_FLAGS);
             /*packet->am_id = 0;            
             packet->length = 0;*/
-            //memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
+            memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
         }
 
         else {
