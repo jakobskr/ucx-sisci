@@ -599,13 +599,13 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         if (packet->status != 1) {
             continue;
         }
+        DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
 
 
         status = uct_iface_invoke_am(&iface->super, packet->am_id, iface->sci_fds[i].buf + sizeof(sisci_packet_t), packet->length,0);
     
 
         DEBUG_PRINT("invoke status %d ", status);
-        //DEBUG_PRINT("invoke: %d length: %d from %d\n", status,  packet->length,  packet->am_id );
         //printf("sizeof struct %zd sizeof struct members: %zd\n", sizeof(sisci_packet_t), sizeof(unsigned) + sizeof(uint8_t)*2);
 
         if(status == UCS_INPROGRESS) {
