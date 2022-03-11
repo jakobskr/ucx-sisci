@@ -150,8 +150,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     unsigned int nodeID;
     unsigned int adapterID = 0;
     unsigned int flags = 0;
-    size_t alignment;
-    size_t align_offset;
+    //size_t alignment, align_offset;
     sci_error_t sci_error;
     ucs_status_t status;
     unsigned dma_seg_id;
