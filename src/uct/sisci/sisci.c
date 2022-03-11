@@ -186,6 +186,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
                             NULL) UCS_STATS_ARG(UCT_sci_NAME));
     
 
+
     //---------- IFACE sci --------------------------
     SCIGetLocalNodeId(adapterID, &nodeID, flags, &sci_error);
 
@@ -282,12 +283,14 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     } 
 
     /*Need to find out how mpool works and how it is used by the underlying systems in ucx*/
-    status = uct_iface_param_am_alignment(params, self->send_size, 0, 0,
+    /*status = uct_iface_param_am_alignment(params, self->send_size, 0, 0,
                                           &alignment, &align_offset);
+
+
     if (status != UCS_OK) {
         printf("failed to init sci mpool\n");
         return status;
-    }
+    }*/
 
 
 
