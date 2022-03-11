@@ -154,6 +154,8 @@ ucp_eager_tagged_handler(void *arg, void *data, size_t length, unsigned am_flags
     status = ucp_recv_desc_init(worker, data, length, 0, am_flags, hdr_len,
                                 flags, priv_length, 1, name, &rdesc);
 
+    print("some zises %d %d %d \n", length, hdr_len, priv_length);
+
     printf("ucs eager only status %d\n", status);
 
     if (!UCS_STATUS_IS_ERR(status)) {
