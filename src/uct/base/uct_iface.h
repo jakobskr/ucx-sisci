@@ -772,6 +772,7 @@ uct_iface_invoke_am(uct_base_iface_t *iface, uint8_t id, void *data,
 
     handler = &iface->am[id];
     status = handler->cb(handler->arg, data, length, flags);
+    printf("status from uct_iface.h %d \n", status);
     ucs_assertv((status == UCS_OK) ||
                 ((status == UCS_INPROGRESS) && (flags &
                                                 UCT_CB_PARAM_FLAG_DESC)),

@@ -3,6 +3,7 @@
 #include <ucs/type/status.h>
 #include <ucs/sys/string.h>
 
+#include "pthread.h"
 #include "stdio.h"
 
 #include "sisci.h"
@@ -14,6 +15,7 @@
 /* Forward declarations */
 static uct_iface_ops_t uct_sci_iface_ops;
 static uct_component_t uct_sci_component;
+pthread_mutex_t lock;
 
 
 
@@ -46,6 +48,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     size_t i;
 
     //printf("%d expected %zd ret_int %d  ret_node %d \n", length, sizeof(conn_req_t), request->node_id, request->interrupt);
+    printf("%d callback started \n", getpid());
 
 
     do {
@@ -58,6 +61,9 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     //todo add spin lock:
 
     /*   Enter critical   */
+    //printf("%d before mutex %p\n", getpid(), &lock);
+
+    pthread_mutex_lock(&lock);
 
     for (i = 0; i < SCI_MAX_EPS; i++)
     {
@@ -66,13 +72,17 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
             break;
         }
     }
+    pthread_mutex_unlock(&lock);
+
+    //printf("%d after mutex %p\n", getpid(), &lock);
+
     /*  leave critical  */
     
 
     answer.node_id = iface->device_addr;
     answer.segment_id = iface->sci_fds[i].segment_id;
 
-    //printf("sending %d %d \n", iface->device_addr, iface->sci_fds[i].segment_id);
+    //printf("%d sending %d %d \n", getpid(),iface->device_addr, iface->sci_fds[i].segment_id);
 
     SCITriggerDataInterrupt(ans_interrupt, (void *) &answer, sizeof(answer), SCI_NO_FLAGS, &sci_error);
 
@@ -87,8 +97,8 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     /* NOTE: does not return any error messages of any kind */
     SCIDisconnectDataInterrupt(ans_interrupt, SCI_NO_FLAGS, &sci_error);
 
-    //printf("callback done \n");
-    return SCI_CALLBACK_CANCEL;
+    printf("%d callback done \n", getpid());
+    return SCI_CALLBACK_CONTINUE;
 }
 
 int sci_opened = 0;
@@ -136,7 +146,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
                            const uct_iface_params_t *params,
                            const uct_iface_config_t *tl_config)
 {
-    unsigned int trash = 3;
+    unsigned int trash = getpid();
     unsigned int nodeID;
     unsigned int adapterID = 0;
     unsigned int flags = 0;
@@ -149,8 +159,6 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     uct_sci_md_t * sci_md = ucs_derived_of(md, uct_sci_md_t);
 
-    DEBUG_PRINT("\n");
-
     UCT_CHECK_PARAM(params->field_mask & UCT_IFACE_PARAM_FIELD_OPEN_MODE,
                     "UCT_IFACE_PARAM_FIELD_OPEN_MODE is not defined");
     if (!(params->open_mode & UCT_IFACE_OPEN_MODE_DEVICE)) {
@@ -158,6 +166,14 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         return UCS_ERR_UNSUPPORTED;
     }
 
+     /* 
+        Lock usage taken from here.
+        https://www.thegeekstuff.com/2012/05/c-mutex-examples/
+     */
+     if (pthread_mutex_init(&lock, NULL) != 0) {
+        printf("\n mutex init failed\n");
+        return UCS_ERR_NO_RESOURCE;
+    }
 
 
 
@@ -179,8 +195,8 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     
 
     self->device_addr = nodeID;
-    self->segment_id = 13337;
-    self->send_size = 524288 + 30; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
+    self->segment_id = ucs_generate_uuid(trash);
+    self->send_size = 10000; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
 
     
     for(ssize_t i = 0; i < SCI_MAX_EPS; i++) {
@@ -287,6 +303,8 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     sci_error_t sci_error;
     
     DEBUG_PRINT("closed iface\n");
+
+    pthread_mutex_destroy(&lock);
 
     SCIRemoveDMAQueue(self->dma_queue, SCI_NO_FLAGS, &sci_error);
 
@@ -402,8 +420,7 @@ static ucs_status_t uct_sci_query_devices(uct_md_h md,
 static ucs_status_t uct_sci_md_query(uct_md_h md, uct_md_attr_t *attr)
 {
     /* Dummy memory registration provided. No real memory handling exists */
-    attr->cap.flags               = UCT_MD_FLAG_REG |
-                                    UCT_MD_FLAG_NEED_RKEY; /* TODO ignore rkey in rma/amo ops */
+    attr->cap.flags               = UCT_MD_FLAG_NEED_RKEY; /* TODO ignore rkey in rma/amo ops */
     attr->cap.max_alloc           = 0;
     attr->cap.reg_mem_types       = UCS_BIT(UCS_MEMORY_TYPE_HOST);
     attr->cap.alloc_mem_types     = 0;
@@ -567,7 +584,6 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     int count = 0;
     ucs_status_t status;
     sisci_packet_t* packet; 
-    
 
     for (size_t i = 0; i < SCI_MAX_EPS; i++)
     {
@@ -586,8 +602,8 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         status = uct_iface_invoke_am(&iface->super, packet->am_id, iface->sci_fds[i].buf + sizeof(sisci_packet_t), packet->length,0);
     
 
-        //DEBUG_PRINT("invoke status %d ", status);
-        DEBUG_PRINT("invoke: %d length: %d from %d\n", status,  packet->length,  packet->am_id );
+        DEBUG_PRINT("invoke status %d ", status);
+        //DEBUG_PRINT("invoke: %d length: %d from %d\n", status,  packet->length,  packet->am_id );
         //printf("sizeof struct %zd sizeof struct members: %zd\n", sizeof(sisci_packet_t), sizeof(unsigned) + sizeof(uint8_t)*2);
 
         if(status == UCS_INPROGRESS) {
@@ -641,7 +657,6 @@ static ucs_status_t uct_sci_iface_query(uct_iface_h tl_iface, uct_iface_attr_t *
                         UCT_IFACE_FLAG_AM_SHORT         |
                         UCT_IFACE_FLAG_CB_SYNC          |
                         UCT_IFACE_FLAG_AM_BCOPY         |
-                        UCT_IFACE_FLAG_PENDING          |
                         UCT_IFACE_FLAG_AM_ZCOPY;
     attr->cap.event_flags  = 0;//UCT_IFACE_FLAG_EVENT_SEND_COMP |
                              //UCT_IFACE_FLAG_EVENT_RECV      |
@@ -657,7 +672,7 @@ static ucs_status_t uct_sci_iface_query(uct_iface_h tl_iface, uct_iface_attr_t *
     //TODO: sane numbers, no lies.
     /* AM flags - TODO: these might need to be fine tuned at a later stage */
     attr->cap.am.max_short = INT32_MAX;
-    attr->cap.am.max_bcopy = 0;
+    attr->cap.am.max_bcopy = 64;
     attr->cap.am.min_zcopy = 0;
     attr->cap.am.max_zcopy = INT32_MAX;
 
@@ -666,7 +681,7 @@ static ucs_status_t uct_sci_iface_query(uct_iface_h tl_iface, uct_iface_attr_t *
     attr->cap.am.max_hdr   = 100;
 
 
-    attr->latency                 = 0;
+    attr->latency                 = ucs_linear_func_make(0, 0);;
     attr->bandwidth.dedicated     = 10 * UCS_MBYTE;
     attr->bandwidth.shared        = 0;
     attr->overhead                = 10e-9;

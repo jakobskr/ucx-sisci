@@ -18,17 +18,17 @@
 #define ADAPTER_NO 0
 #define SCI_NO_FLAGS 0
 #define SCI_NO_CALLBACK 0
-#define SCI_MAX_EPS 1
+#define SCI_MAX_EPS 6
 
 #define SISCI_STATUS_WRITING_DONE 1
 #define SCI_PACKET_SIZE sizeof(sisci_packet_t)
 
 // https://stackoverflow.com/questions/1941307/debug-print-macro-in-c by Tom Kuschel
-#define DEBUG 3
+#define DEBUG 0
 
 #if defined(DEBUG) && DEBUG > 0
- #define DEBUG_PRINT(fmt, args...) fprintf(stdout, "DEBUG: %s:%d:%s(): " fmt, \
-    __FILE__, __LINE__, __func__, ##args)
+ #define DEBUG_PRINT(fmt, args...) fprintf(stdout, "%d: %s:%d:%s(): " fmt, \
+    getpid(), __FILE__, __LINE__, __func__, ##args)
 #else
  #define DEBUG_PRINT(fmt, args...) /* Don't do anything in release builds */
 #endif

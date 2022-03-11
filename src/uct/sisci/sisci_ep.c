@@ -58,6 +58,11 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
     segment_id = (unsigned int) iface_addr->segment_id;
     node_id = (unsigned int) dev_addr->node_id;
 
+
+    if(iface->segment_id == segment_id) {
+        printf("%d connecting to a local segment %d\n", getpid(), segment_id);
+    }
+
     DEBUG_PRINT("EP created segment_id %d node_id %d\n", segment_id, node_id);
 
     self->super.super.iface = params->iface;
@@ -68,9 +73,10 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
 
     do {
         SCIConnectDataInterrupt(md->sci_virtual_device, &req_interrupt, node_id, 0, segment_id, 0, 0, &sci_error);
+        DEBUG_PRINT("connecting to interrupt...\n");
     } while (sci_error != SCI_ERR_OK);
 
-    //printf("connected to remote interrupt!, ret_int %d\n", local_interrupt_id);
+    printf("%d connected to remote interrupt!, ret_int %d\n", getpid(),local_interrupt_id);
     //printf("size of answer %zd size of struct answer %zd\n", sizeof(answer), sizeof(con_ans_t));
     request.status = 1;
     request.interrupt = local_interrupt_id;
@@ -93,7 +99,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
         return UCS_ERR_NO_RESOURCE;
     }
 
-    //printf("sent interrupt of %zd to %d\n", sizeof(request), segment_id);
+    printf("%d sent interrupt of %zd to %d\n", getpid(), sizeof(request), segment_id);
               
 
     SCIWaitForDataInterrupt(ans_interrupt, (void*) &answer, &ans_length,0, 0, &sci_error);
@@ -120,10 +126,10 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
     }
 
     do {
+    DEBUG_PRINT("waiting to connect\n");
     SCIConnectSegment(md->sci_virtual_device, &self->remote_segment, self->remote_node_id, self->remote_segment_id, 
                 ADAPTER_NO, NULL, NULL, 0, 0, &sci_error);
 
-    DEBUG_PRINT("waiting to connect\n");
     } while (sci_error != SCI_ERR_OK);
 
     self->buf = (void *) SCIMapRemoteSegment(self->remote_segment, &self->remote_map, 0, iface->send_size, NULL, 0, &sci_error);
@@ -286,7 +292,7 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
 {
     //TODO bcopy
     printf("uct_sci_ep_am_bcopy()\n");
-    return -8;
+    return UCS_ERR_NOT_IMPLEMENTED;
 }
 
 ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header, unsigned header_length, 
