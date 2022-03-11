@@ -622,7 +622,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             SCIFlush(NULL, SCI_NO_FLAGS);
             /*packet->am_id = 0;            
             packet->length = 0;*/
-            memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
+            //memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
         }
 
         else {
