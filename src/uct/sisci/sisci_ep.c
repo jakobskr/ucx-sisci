@@ -309,7 +309,7 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
     sisci_packet_t*  packet = (sisci_packet_t*) ep->buf;
     ssize_t length;
 
-    if(ep->ctl->status != 0) {
+    if(ep->sci_ctl->status != 0) {
         return UCS_ERR_NO_RESOURCE;
     }
 
