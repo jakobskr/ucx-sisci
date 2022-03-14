@@ -640,7 +640,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
 
             packet->status = 0;
             
-            iface->sci_fds[i].ctl_buf->status = 2;
+            iface->sci_fds[i].ctl_buf->status = 0;
             SCIFlush(NULL, SCI_NO_FLAGS);
             
                 
