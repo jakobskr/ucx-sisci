@@ -268,7 +268,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     
     //printf("status %d \n", ep->sci_ctl->status);
 
-    
+
 
     if(ep->sci_ctl->status != 0) { 
         //printf("Error sending to %d: recv buffer not empty\n", id);
@@ -277,6 +277,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
 
     //printf("sizeof adress %zd sizeof unsigned %zd size of uint %zd size of void %zd\n", sizeof(uct_sicsci_ep_addr_t),sizeof(length), sizeof(uint), sizeof(void*));
     
+    ep->sci_ctl->status = 1;
     packet->am_id = id;
     packet->length = length + sizeof(header);
     uct_am_short_fill_data(ep->buf + sizeof(sisci_packet_t), header, payload, length);
@@ -286,7 +287,6 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
 
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d \n", ep->remote_segment_id, ep->remote_node_id, id, packet->length);
     
-    ep->sci_ctl->status = 1;
     return UCS_OK;
 }
 
