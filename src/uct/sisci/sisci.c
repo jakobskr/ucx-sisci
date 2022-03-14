@@ -243,7 +243,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     /*    ctl segment    */
     
-    SCICreateSegment(sci_md->sci_virtual_device, self->ctl_segment, self->ctl_id, sizeof(sci_ctl_t) * SCI_MAX_EPS, NULL, NULL, 0, &sci_error);
+    SCICreateSegment(sci_md->sci_virtual_device, &self->ctl_segment, self->ctl_id, sizeof(sci_ctl_t) * SCI_MAX_EPS, NULL, NULL, 0, &sci_error);
     if (sci_error != SCI_ERR_OK) { 
         printf("SCI_CREATE_SEGMENT: %s\n", SCIGetErrorString(sci_error));
         return UCS_ERR_NO_RESOURCE;
@@ -269,7 +269,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         self->sci_fds[i].offset = i * self->send_size; 
         //self->sci_fds[i].segment_id = segment_id;
 
-        self->sci_fds[i].buf = (void*) SCIMapLocalSegment(self->local_segment, &self->sci_fds[i].map, i * self->send_size, self->send_size, NULL,0, &sci_error);
+        self->sci_fds[i].local_buf = (void*) SCIMapLocalSegment(self->local_segment, &self->sci_fds[i].local_map, i * self->send_size, self->send_size, NULL,0, &sci_error);
     
         if (sci_error != SCI_ERR_OK) { 
             printf("SCI_MAP_LOCAL_SEG: %s\n", SCIGetErrorString(sci_error));
