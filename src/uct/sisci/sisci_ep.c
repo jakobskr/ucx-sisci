@@ -305,7 +305,7 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
     //TODO bcopy
     
     uct_sci_ep_t*    ep     = ucs_derived_of(tl_ep, uct_sci_ep_t);
-    uct_sci_iface_t* iface  = ucs_derived_of(tl_ep->iface, uct_sci_iface_t):
+    uct_sci_iface_t* iface  = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
     sisci_packet_t*  packet = (sisci_packet_t*) ep->buf;
     ssize_t length;
 
