@@ -320,8 +320,10 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
     SCIFlush(NULL, SCI_NO_FLAGS);
 
     packet->status = 1;
+    SCIFlush(NULL, SCI_NO_FLAGS);
 
-    printf("uct_sci_ep_am_bcopy()\n");
+
+    //printf("uct_sci_ep_am_bcopy()\n");
     return length;
 }
 
