@@ -142,7 +142,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
     }
 
 
-    printf("ctl offset: %d\n", iface->eps * sizeof(sci_ctl_t));
+    printf("ctl offset: %zd\n", iface->eps * sizeof(sci_ctl_t));
     self->sci_ctl = (sci_ctl_t*) SCIMapLocalSegment(iface->ctl_segment, &self->ctl_map, sizeof(sci_ctl_t) * iface->eps, sizeof(sci_ctl_t), NULL, SCI_NO_FLAGS , &sci_error);
 
     if(sci_error != SCI_ERR_OK) {
