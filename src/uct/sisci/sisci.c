@@ -102,7 +102,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     } while (sci_error != SCI_ERR_OK);
 
 
-    iface->sci_fds[i].ctl_buf = (sci_ctl_t *) SCIMapRemoteSegment(iface->sci_fds[i].ctl_segment, &iface->sci_fds[i]ctl_map, request->ctl_offset, 
+    iface->sci_fds[i].ctl_buf = (sci_ctl_t *) SCIMapRemoteSegment(iface->sci_fds[i].ctl_segment, &iface->sci_fds[i].ctl_map, request->ctl_offset, 
                                                                   sizeof(sci_ctl_t), NULL, 0, &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
