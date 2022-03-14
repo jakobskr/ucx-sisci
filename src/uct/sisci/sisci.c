@@ -621,7 +621,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             continue;
         }
 
-        packet = (sisci_packet_t*) iface->sci_fds[i].buf;
+        packet = (sisci_packet_t*) iface->sci_fds[i].local_buf;
 
         if (packet->status != 1) {
             continue;
@@ -629,7 +629,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
 
 
-        status = uct_iface_invoke_am(&iface->super, packet->am_id, iface->sci_fds[i].buf + sizeof(sisci_packet_t), packet->length,0);
+        status = uct_iface_invoke_am(&iface->super, packet->am_id, iface->sci_fds[i].local_buf + sizeof(sisci_packet_t), packet->length,0);
     
 
         //printf("sizeof struct %zd sizeof struct members: %zd\n", sizeof(sisci_packet_t), sizeof(unsigned) + sizeof(uint8_t)*2);
