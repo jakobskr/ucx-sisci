@@ -22,7 +22,7 @@ typedef struct uct_sci_ep {
     unsigned int            remote_segment_id;
     void *                  buf;
     sci_map_t               ctl_map:
-    sci_ctl_t*              ctl;              
+    sci_ctl_t*              sci_ctl;              
 } uct_sci_ep_t;
 
 
