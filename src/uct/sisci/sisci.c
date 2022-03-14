@@ -645,7 +645,11 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             DEBUG_PRINT("status == UCS_OK, clear buffers\n");
 
             packet->status = 0;
+            
+            iface->sci_fds[i].ctl_buf->status = 0;
             SCIFlush(NULL, SCI_NO_FLAGS);
+            
+                
             /*packet->am_id = 0;            
             packet->length = 0;*/
             //memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
