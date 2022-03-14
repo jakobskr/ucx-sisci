@@ -23,7 +23,6 @@ typedef struct uct_sci_ep {
     void *                  buf;
     sci_map_t               ctl_map:
     sci_ctl_t*              ctl;              
-
 } uct_sci_ep_t;
 
 
