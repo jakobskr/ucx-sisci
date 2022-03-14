@@ -96,7 +96,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
 
     do {
         DEBUG_PRINT("waiting to connect to ctl\n");
-        SCIConnectSegment(md->sci_virtual_device, &iface->sci_fds.ctl_segment, request->node_id, request->ctl_id, 
+        SCIConnectSegment(md->sci_virtual_device, &iface->sci_fds[i].ctl_segment, request->node_id, request->ctl_id, 
                 ADAPTER_NO, NULL, NULL, 0, 0, &sci_error);
 
     } while (sci_error != SCI_ERR_OK);
@@ -219,7 +219,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     /*  recv segment    */
 
-    SCICreateSegment(sci_md->sci_virtual_device, self->local_segment, self->segment_id, self->send_size * SCI_MAX_EPS, NULL, NULL, 0, &sci_error);
+    SCICreateSegment(sci_md->sci_virtual_device, &self->local_segment, self->segment_id, self->send_size * SCI_MAX_EPS, NULL, NULL, 0, &sci_error);
     
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_CREATE_SEGMENT: %s\n", SCIGetErrorString(sci_error));
@@ -263,7 +263,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
 
     for(ssize_t i = 0; i < SCI_MAX_EPS; i++) {
-        int segment_id = ucs_generate_uuid(trash);
+        //int segment_id = ucs_generate_uuid(trash);
         self->sci_fds[i].status = 0;
         self->sci_fds[i].size = self->send_size;
         self->sci_fds[i].offset = i * self->send_size; 
