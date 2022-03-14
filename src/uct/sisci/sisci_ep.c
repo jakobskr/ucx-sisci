@@ -316,7 +316,7 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
     ep->sci_ctl->status = 1;
     length              = pack_cb(ep->buf + sizeof(sisci_packet_t),  arg);
     packet->am_id       = id;
-    packet->length      = 
+    packet->length      = length;
     SCIFlush(NULL, SCI_NO_FLAGS);
 
     packet->status = 1;
