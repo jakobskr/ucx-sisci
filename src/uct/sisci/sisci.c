@@ -742,6 +742,7 @@ static ucs_status_t uct_sci_md_rkey_unpack(uct_component_t *component,
      * Need rkey == 0 due to work with same process to reuse uct_base_[put|get|atomic]*
      */
     DEBUG_PRINT("uct_sci_md_rkey_unpack()");
+    printf("uct_sci_md_rkey_unpack\n");
     *rkey_p   = 0;
     *handle_p = NULL;
     return UCS_OK;
