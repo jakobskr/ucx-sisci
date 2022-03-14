@@ -303,8 +303,26 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
                              unsigned flags)
 {
     //TODO bcopy
+    
+    uct_sci_ep_t*    ep     = ucs_derived_of(tl_ep, uct_sci_ep_t);
+    uct_sci_iface_t* iface  = ucs_derived_of(tl_ep->iface, uct_sci_iface_t):
+    sisci_packet_t*  packet = (sisci_packet_t*) ep->buf;
+    ssize_t length;
+
+    if(ep->ctl->status != 0) {
+        return UCS_ERR_NO_RESOURCE;
+    }
+
+    ep->sci_ctl->status = 1;
+    length              = pack_cb(ep->buf + sizeof(sisci_packet_t),  arg);
+    packet->am_id       = id;
+    packet->length      = 
+    SCIFlush(NULL, SCI_NO_FLAGS);
+
+    packet->status = 1;
+
     printf("uct_sci_ep_am_bcopy()\n");
-    return UCS_ERR_NOT_IMPLEMENTED;
+    return length;
 }
 
 ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header, unsigned header_length, 
