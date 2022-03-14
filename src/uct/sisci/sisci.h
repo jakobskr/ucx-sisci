@@ -55,28 +55,33 @@ typedef struct sci_ctl {
 */
 typedef struct sci_fd {
     int                     status;         /* taken | available | ready |  */
-    int                     segment_id;     /* local segment id, generated during launch */
     int                     size;           /* size */
-    int                     remote_node;
-    sci_local_segment_t     local_segment;  
-    sci_map_t               map;
-    void*                   buf;
+    int                     remote_node;    
+    /*        rx info          */
+    uint32_t                offset;         /* start of our map in the global segment */
+    sci_map_t               local_map;            /*  */
+    void*                   local_buf;
+    /*    Control info        */
+    uint32_t                ctl_id;
+    sci_remote_segment_t    ctl_segment;
+    sci_map_t               ctl_map;
+    sci_ctl_t*              ctl_buf;
 } sci_fd_t;
 
 typedef struct con_req {
     uint8_t status;
     int     node_id;
-    //int     segment_id;
     int     interrupt;
+    int     ctl_id;
+    int     ctl_offset;
 } conn_req_t;
 
 typedef struct con_ans {
-    uint8_t status;
-    int     node_id;
-    int     segment_id;
+    uint8_t      status;
+    unsigned int node_id;
+    unsigned int segment_id;
+    unsigned int offset;
 } con_ans_t;
-
-
 
 
 void sci_testing();
@@ -121,8 +126,15 @@ typedef struct uct_sci_iface {
     sci_map_t                   dma_map;
     sci_fd_t                    sci_fds[SCI_MAX_EPS];
     sci_local_data_interrupt_t  interrupt; 
+    unsigned int                interruptNO;
     void*                       tx_map;
 
+    /*      ctl segment, used for control during runtime between processes  */
+    unsigned int                eps;
+    unsigned int                ctl_id;
+    sci_local_segment_t         ctl_segment;
+    sci_map_holder_t            ctl_map;
+    void*                       ctls;
 
 } uct_sci_iface_t;
 

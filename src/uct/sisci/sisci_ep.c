@@ -78,10 +78,11 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
 
     printf("%d connected to remote interrupt!, ret_int %d\n", getpid(),local_interrupt_id);
     //printf("size of answer %zd size of struct answer %zd\n", sizeof(answer), sizeof(con_ans_t));
-    request.status = 1;
-    request.interrupt = local_interrupt_id;
-    request.node_id   = iface->device_addr;
-
+    request.status     = 1;
+    request.interrupt  = local_interrupt_id;
+    request.node_id    = iface->device_addr;
+    request.ctl_offset = iface->eps * sizeof(sci_ctl_t);
+    request.ctl_id     = iface->ctl_id;
 
     SCICreateDataInterrupt(md->sci_virtual_device, &ans_interrupt, 0, &local_interrupt_id,  
                             NULL, NULL, SCI_FLAG_FIXED_INTNO, &sci_error);
@@ -115,6 +116,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
 
     self->remote_node_id = answer.node_id;
     self->remote_segment_id = answer.segment_id;
+    self->offset = answer.offset;
 
 
     /*  Clean up for connection.  */
@@ -132,23 +134,26 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
 
     } while (sci_error != SCI_ERR_OK);
 
-    self->buf = (void *) SCIMapRemoteSegment(self->remote_segment, &self->remote_map, 0, iface->send_size, NULL, 0, &sci_error);
+    self->buf = (void *) SCIMapRemoteSegment(self->remote_segment, &self->remote_map, self->offset, iface->send_size, NULL, 0, &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
         printf("SCI_MAP_REM_SEG: %s\n", SCIGetErrorString(sci_error));
         return UCS_ERR_NO_RESOURCE;
     }
 
-    self->sci_ctl = (sci_ctl_t*) SCIMapRemoteSegment(self->remote_segment, &self->ctl_map, 0, sizeof(sci_ctl_t), NULL, SCI_FLAG_READONLY_MAP , &sci_error);
+    self->ctl = (sci_ctl_t*) SCIMapLocalSegment(iface->ctl_segment, &self->ctl_map, sizeof(sci_ctl_t) * iface->eps, sizeof(sci_ctl_t), NULL, SCI_FLAG_READONLY_MAP , &sci_error);
 
     if(sci_error != SCI_ERR_OK) {
         printf("SCI_MAP_CTL: %s\n", SCIGetErrorString(sci_error));
         return UCS_ERR_NO_RESOURCE;
     }
-    
+
+    iface->eps += 1;    
     DEBUG_PRINT("EP connected to segment %d at node %d\n",  self->remote_segment_id, self->remote_node_id);
     return UCS_OK;
 }
+
+
 
 UCS_CLASS_DEFINE(uct_sci_ep_t, uct_base_ep_t);
 
@@ -258,8 +263,9 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
 
 
     /* NOTE: This check adds around 1 usec of delay per message. */
+    
 
-    if(ep->sci_ctl->status != 0) { 
+    if(ep->ctl->status != 0) { 
         //printf("Error sending to %d: recv buffer not empty\n", id);
         return UCS_ERR_NO_RESOURCE;
     }
