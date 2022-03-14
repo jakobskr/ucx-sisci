@@ -610,6 +610,8 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
 
     for (size_t i = 0; i < SCI_MAX_EPS; i++)
     {
+
+
         
         if(iface->sci_fds[i].status != 1) {
             continue;

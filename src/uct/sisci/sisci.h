@@ -47,7 +47,7 @@ typedef struct sci_map_holder {
 } sci_map_holder_t;
 
 typedef struct sci_ctl {
-    uint8_t status;
+    unsigned int status;
 }   sci_ctl_t;
 
 /*
