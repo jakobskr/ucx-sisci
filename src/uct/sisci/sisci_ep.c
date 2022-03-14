@@ -141,7 +141,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
         return UCS_ERR_NO_RESOURCE;
     }
 
-    self->sci_ctl = (sci_ctl_t*) SCIMapLocalSegment(iface->ctl_segment, &self->ctl_map, sizeof(sci_ctl_t) * iface->eps, sizeof(sci_ctl_t), NULL, SCI_FLAG_READONLY_MAP , &sci_error);
+    self->sci_ctl = (sci_ctl_t*) SCIMapLocalSegment(iface->ctl_segment, &self->ctl_map, sizeof(sci_ctl_t) * iface->eps, sizeof(sci_ctl_t), NULL, SCI_NO_FLAGS , &sci_error);
 
     if(sci_error != SCI_ERR_OK) {
         printf("SCI_MAP_CTL: %s\n", SCIGetErrorString(sci_error));
