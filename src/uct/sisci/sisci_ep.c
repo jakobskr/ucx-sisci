@@ -342,8 +342,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     ucs_iov_iter_t uct_iov_iter;
     sci_error_t sci_error;
 
-    if(sci_header->status != 0) {
-        //printf("Error sending to %d: recv buffer not empty\n", id);
+    if(ep->sci_ctl->status != 0) {
         return UCS_ERR_NO_RESOURCE;
     }
 
@@ -368,7 +367,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     }
     
     SCIStartDmaTransfer(iface->dma_queue, iface->dma_segment, ep->remote_segment, 
-                        0, iov_total_len + header_length + SCI_PACKET_SIZE, 0,
+                        0, iov_total_len + header_length + SCI_PACKET_SIZE, ep->offset,
                         SCI_NO_CALLBACK, NULL, SCI_NO_FLAGS, &sci_error);
     
 
