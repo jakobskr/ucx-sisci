@@ -705,7 +705,6 @@ ucp_recv_desc_init(ucp_worker_h worker, void *data, size_t length,
     } else {
         rdesc = (ucp_recv_desc_t*)ucs_mpool_get_inline(&worker->am_mp);
 
-        printf("rdesc init happens?\n");
         if (rdesc == NULL) {
             ucs_error("ucp recv descriptor is not allocated");
             return UCS_ERR_NO_MEMORY;

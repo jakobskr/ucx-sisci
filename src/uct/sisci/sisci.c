@@ -48,7 +48,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     size_t i;
 
     //printf("%d expected %zd ret_int %d  ret_node %d \n", length, sizeof(conn_req_t), request->node_id, request->interrupt);
-    printf("%d callback started \n", getpid());
+    //printf("%d callback started \n", getpid());
 
 
     do {
@@ -102,7 +102,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     } while (sci_error != SCI_ERR_OK);
 
 
-    printf("fd ctl offset %d \n", request->ctl_offset);
+    //printf("fd ctl offset %d \n", request->ctl_offset);
     iface->sci_fds[i].ctl_buf = (sci_ctl_t *) SCIMapRemoteSegment(iface->sci_fds[i].ctl_segment, &iface->sci_fds[i].ctl_map, request->ctl_offset, 
                                                                   sizeof(sci_ctl_t), NULL, 0, &sci_error);
 
@@ -116,7 +116,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     /* NOTE: does not return any error messages of any kind */
     SCIDisconnectDataInterrupt(ans_interrupt, SCI_NO_FLAGS, &sci_error);
 
-    printf("%d callback done \n", getpid());
+   //printf("%d callback done \n", getpid());
     return SCI_CALLBACK_CONTINUE;
 }
 
