@@ -102,8 +102,8 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
 
     //printf("%d sent interrupt of %zd to %d\n", getpid(), sizeof(request), segment_id);
               
-
-    SCIWaitForDataInterrupt(ans_interrupt, (void*) &answer, &ans_length,0, 0, &sci_error);
+    printf("SCI_INFINITE_TIMEOUT %d \n", SCI_INFINITE_TIMEOUT);
+    SCIWaitForDataInterrupt(ans_interrupt, (void*) &answer, &ans_length,SCI_INFINITE_TIMEOUT, 0, &sci_error);
 
     if(sci_error != SCI_ERR_OK) {
         printf("SCI Wait For Interrupt: %s\n", SCIGetErrorString(sci_error));
