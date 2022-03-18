@@ -431,7 +431,7 @@ static ucs_status_t uct_sci_query_devices(uct_md_h md,
 
     
     status = uct_single_device_resource(md, UCT_sci_NAME,
-                                      UCT_DEVICE_TYPE_SHM,
+                                      UCT_DEVICE_TYPE_NET,
                                       UCS_SYS_DEVICE_ID_UNKNOWN, devices_p,
                                       num_devices_p);
     
