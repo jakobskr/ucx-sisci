@@ -645,7 +645,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         
         if(status == UCS_OK) {
 
-            DEBUG_PRINT("status == UCS_OK, clear buffers\n");
+            //DEBUG_PRINT("status == UCS_OK, clear buffers\n");
 
             packet->status = 0;
             
