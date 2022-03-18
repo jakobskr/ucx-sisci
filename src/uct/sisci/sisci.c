@@ -552,12 +552,12 @@ int uct_sci_iface_is_reachable(const uct_iface_h tl_iface,
                                        const uct_iface_addr_t *iface_addr)
 {
    /*NOTE We have no good way to actually check if given address is reachable, so we just return 1*/
-
+    uct_sci_iface_t* iface = ucs_derived_of(tl_iface, uct_sci_iface_t);
     uct_sci_device_addr_t* sci_dev_addr = (uct_sci_device_addr_t *) dev_addr;
     uct_sci_iface_addr_t*  sci_iface_addr = (uct_sci_iface_addr_t*) iface_addr;
 
 
-    DEBUG_PRINT("iface_addr: %d dev_addr: %d \n", sci_iface_addr->segment_id, sci_dev_addr->node_id);
+    DEBUG_PRINT("FROM if_addr: %d dev_addr: %d  TO: iface_addr: %d dev_addr: %d \n",iface->interruptNO, iface->device_addr,  sci_iface_addr->segment_id, sci_dev_addr->node_id);
     
 
     return 1;
@@ -617,8 +617,6 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
 
     for (size_t i = 0; i < SCI_MAX_EPS; i++)
     {
-
-
         
         if(iface->sci_fds[i].status != 1) {
             continue;
@@ -790,7 +788,7 @@ static uct_iface_ops_t uct_sci_iface_ops = {
     .ep_get_bcopy             = uct_sci_ep_get_bcopy,     // bap
     .ep_am_short              = uct_sci_ep_am_short,      // bap
     .ep_am_short_iov          = uct_sci_ep_am_short_iov,  // bap
-    .ep_am_bcopy              = uct_sci_ep_am_bcopy,      // bap
+    .ep_am_bcopy              = uct_sci_ep_am_bcopy,      
     .ep_am_zcopy              = uct_sci_ep_am_zcopy,
     .ep_atomic_cswap64        = uct_sci_ep_atomic_cswap64,// bap
     .ep_atomic64_post         = uct_sci_ep_atomic64_post, // bap
