@@ -710,10 +710,10 @@ static ucs_status_t uct_sci_iface_query(uct_iface_h tl_iface, uct_iface_attr_t *
     
     //TODO: sane numbers, no lies.
     /* AM flags - TODO: these might need to be fine tuned at a later stage */
-    attr->cap.am.max_short = 524288;
+    attr->cap.am.max_short = 524288 / 2;
     attr->cap.am.max_bcopy = 1024;
     attr->cap.am.min_zcopy = 0;
-    attr->cap.am.max_zcopy = 524288;
+    attr->cap.am.max_zcopy = 524288 / 2;
 
 
     /*TODO Sane numbers, and not guesses for fun.*/
