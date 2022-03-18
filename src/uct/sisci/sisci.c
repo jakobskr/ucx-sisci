@@ -552,6 +552,14 @@ int uct_sci_iface_is_reachable(const uct_iface_h tl_iface,
                                        const uct_iface_addr_t *iface_addr)
 {
    /*NOTE We have no good way to actually check if given address is reachable, so we just return 1*/
+
+    uct_sci_device_addr_t* sci_dev_addr = (uct_sci_device_addr_t *) dev_addr;
+    uct_sci_iface_addr_t*  sci_iface_addr = (uct_sci_iface_addr_t*) iface_addr;
+
+
+    DEBUG_PRINT("iface_addr: %d dev_addr: %d \n", sci_iface_addr->segment_id, sci_dev_addr->node_id);
+    
+
     return 1;
 }
 
