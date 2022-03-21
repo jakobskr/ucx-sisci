@@ -196,7 +196,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         https://www.thegeekstuff.com/2012/05/c-mutex-examples/
      */
     
-    if (pthread_mutex_init(&iface->lock, NULL) != 0) {
+    if (pthread_mutex_init(&self->lock, NULL) != 0) {
         printf("\n mutex init failed\n");
         return UCS_ERR_NO_RESOURCE;
     }
@@ -365,7 +365,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     
     DEBUG_PRINT("closed iface\n");
 
-    pthread_mutex_destroy(&lock);
+    pthread_mutex_destroy(&self->lock);
 
     SCIRemoveDMAQueue(self->dma_queue, SCI_NO_FLAGS, &sci_error);
 
