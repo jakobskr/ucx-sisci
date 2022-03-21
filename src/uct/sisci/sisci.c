@@ -71,8 +71,8 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
         }
     }
 
-    //iface->eps++;
-    //printf("%d: eps: %d\n",getpid(),iface->eps);
+    iface->eps++;
+    printf("%d: eps: %d\n",getpid(),iface->eps);
     //sleep(1);
     pthread_mutex_unlock(&iface->lock);
 
