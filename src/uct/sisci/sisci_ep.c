@@ -73,7 +73,6 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
 
     do {
         SCIConnectDataInterrupt(md->sci_virtual_device, &req_interrupt, node_id, 0, segment_id, 0, 0, &sci_error);
-        DEBUG_PRINT("connecting to interrupt...\n");
     } while (sci_error != SCI_ERR_OK);
 
     //printf("%d connected to remote interrupt!, ret_int %d\n", getpid(),local_interrupt_id);
@@ -127,7 +126,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
     }
 
     do {
-    DEBUG_PRINT("waiting to connect\n");
+    DEBUG_PRINT("waiting to connect %s\n", SCIGetErrorString(sci_error));
     SCIConnectSegment(md->sci_virtual_device, &self->remote_segment, self->remote_node_id, self->remote_segment_id, 
                 ADAPTER_NO, NULL, NULL, 0, 0, &sci_error);
 

@@ -97,10 +97,10 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     /*  set status to ready  */ 
 
     do {
-        DEBUG_PRINT("waiting to connect to ctl\n");
+        DEBUG_PRINT("waiting to connect to ctl %s\n", SCIGetErrorString(sci_error));
         SCIConnectSegment(md->sci_virtual_device, &iface->sci_fds[i].ctl_segment, request->node_id, request->ctl_id, 
                 ADAPTER_NO, NULL, NULL, 0, 0, &sci_error);
-
+        
     } while (sci_error != SCI_ERR_OK);
 
 
