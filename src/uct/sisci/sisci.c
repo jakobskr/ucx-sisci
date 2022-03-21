@@ -72,7 +72,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     }
 
     iface->connections++;
-    printf("%d: eps: %d\n  address %p",getpid(),iface->connections, &&iface);
+    printf("%d: eps: %d  address %p\n",getpid(),iface->connections, &iface);
     //sleep(1);
     pthread_mutex_unlock(&iface->lock);
 
