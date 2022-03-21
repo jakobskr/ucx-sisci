@@ -74,7 +74,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     }
 
     iface->eps++;
-    //printf("%d: eps: %d\n",getpid(),iface->eps);
+    printf("%d: eps: %d\n",getpid(),iface->eps);
     pthread_mutex_unlock(&lock);
 
     //printf("%d after mutex %p\n", getpid(), &lock);
@@ -622,9 +622,6 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     int count = 0;
     ucs_status_t status;
     sisci_packet_t* packet; 
-
-    printf("%d is progress\n", getpid());
-
     
 
     for (size_t i = 0; i < SCI_MAX_EPS; i++)
