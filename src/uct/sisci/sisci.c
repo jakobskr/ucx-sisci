@@ -3,7 +3,6 @@
 #include <ucs/type/status.h>
 #include <ucs/sys/string.h>
 
-#include "pthread.h"
 #include "stdio.h"
 
 #include "sisci.h"
@@ -15,7 +14,6 @@
 /* Forward declarations */
 static uct_iface_ops_t uct_sci_iface_ops;
 static uct_component_t uct_sci_component;
-pthread_mutex_t lock;
 
 
 
@@ -63,7 +61,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     /*   Enter critical   */
     //printf("%d before mutex %p\n", getpid(), &lock);
 
-    pthread_mutex_lock(&lock);
+    pthread_mutex_lock(&iface->lock);
 
     for (i = 0; i < SCI_MAX_EPS; i++)
     {
@@ -76,7 +74,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     iface->eps++;
     printf("%d: eps: %d\n",getpid(),iface->eps);
     sleep(1);
-    pthread_mutex_unlock(&lock);
+    pthread_mutex_unlock(&iface->lock);
 
     //printf("%d after mutex %p\n", getpid(), &lock);
 
@@ -198,7 +196,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         https://www.thegeekstuff.com/2012/05/c-mutex-examples/
      */
     
-    if (pthread_mutex_init(&lock, NULL) != 0) {
+    if (pthread_mutex_init(&iface->lock, NULL) != 0) {
         printf("\n mutex init failed\n");
         return UCS_ERR_NO_RESOURCE;
     }

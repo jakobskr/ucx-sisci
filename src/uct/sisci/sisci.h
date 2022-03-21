@@ -1,6 +1,7 @@
 #ifndef UCT_SISCI_H
 #define UCT_SISCI_H
 
+#include "pthread.h"
 
 
 #include <uct/base/uct_iface.h>
@@ -130,6 +131,7 @@ typedef struct uct_sci_iface {
     void*                       tx_map;
 
     /*      ctl segment, used for control during runtime between processes  */
+    pthread_mutex_t lock;
     unsigned int                eps;
     unsigned int                ctl_id;
     sci_local_segment_t         ctl_segment;
