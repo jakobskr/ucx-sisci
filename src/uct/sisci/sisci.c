@@ -187,14 +187,22 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         return UCS_ERR_UNSUPPORTED;
     }
 
+    if (ucs_derived_of(worker, uct_priv_worker_t)->thread_mode == UCS_THREAD_MODE_MULTI) {
+        ucs_error("SCI transport does not support multi-threaded worker");
+        return UCS_ERR_INVALID_PARAM;
+    }
+
      /* 
         Lock usage taken from here.
         https://www.thegeekstuff.com/2012/05/c-mutex-examples/
      */
-     if (pthread_mutex_init(&lock, NULL) != 0) {
+    
+    if (pthread_mutex_init(&lock, NULL) != 0) {
         printf("\n mutex init failed\n");
         return UCS_ERR_NO_RESOURCE;
     }
+
+
 
 
     UCS_CLASS_CALL_SUPER_INIT(
