@@ -147,7 +147,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
         return UCS_ERR_NO_RESOURCE;
     }
 
-    //iface->eps += 1;    
+    iface->eps += 1;    
     DEBUG_PRINT("EP connected to segment %d at node %d\n",  self->remote_segment_id, self->remote_node_id);
     return UCS_OK;
 }
