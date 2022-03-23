@@ -19,7 +19,7 @@
 #define ADAPTER_NO 0
 #define SCI_NO_FLAGS 0
 #define SCI_NO_CALLBACK 0
-#define SCI_MAX_EPS 30
+#define SCI_MAX_EPS 28
 #define SCI_VDEVS   3 //Max number of virtual_devices available. Each virtual descriptor should be able to handle 16 connections.
 
 #define SISCI_STATUS_WRITING_DONE 1
