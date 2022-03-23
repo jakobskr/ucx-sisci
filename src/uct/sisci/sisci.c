@@ -69,7 +69,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
 
     pthread_mutex_lock(&iface->lock);
 
-    for (i = 0; i < SCI_MAX_EPS; i++)
+    for (i = 0; i < iface->max_eps; i++)
     {
         if(iface->sci_fds[i].status == 0) {
             iface->sci_fds[i].status = 2;
@@ -229,7 +229,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         printf("SCI_IFACE_INIT: %s\n", SCIGetErrorString(sci_error));
     } 
 
-    printf("CONFIG\n\tSEND_SIZE: %zd \n\tMAX_EPS: %u", config->send_size, config->max_eps);
+    printf("CONFIG\n\tSEND_SIZE: %zd \n\tMAX_EPS: %u\n", config->send_size, config->max_eps);
     
 
     self->device_addr = nodeID;
@@ -237,6 +237,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     self->ctl_id      = ucs_generate_uuid(trash);
     self->send_size   = config->send_size; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
     self->eps         = 0;
+    self->max_eps     = MIN(SCI_MAX_EPS, config->max_eps);
 
     SCIOpen(&self->vdev_ep, 0, &sci_error);
 
@@ -256,7 +257,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     /*  recv segment    */
 
-    SCICreateSegment(sci_md->sci_virtual_device, &self->local_segment, self->segment_id, self->send_size * SCI_MAX_EPS, NULL, NULL, 0, &sci_error);
+    SCICreateSegment(sci_md->sci_virtual_device, &self->local_segment, self->segment_id, self->send_size * self->max_eps, NULL, NULL, 0, &sci_error);
     
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_CREATE_RECV_SEGMENT: %s\n", SCIGetErrorString(sci_error));
@@ -280,7 +281,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     /*    ctl segment    */
     
-    SCICreateSegment(sci_md->sci_virtual_device, &self->ctl_segment, self->ctl_id, sizeof(sci_ctl_t) * SCI_MAX_EPS, NULL, NULL, 0, &sci_error);
+    SCICreateSegment(sci_md->sci_virtual_device, &self->ctl_segment, self->ctl_id, sizeof(sci_ctl_t) * self->max_eps, NULL, NULL, 0, &sci_error);
     if (sci_error != SCI_ERR_OK) { 
         printf("SCI_CREATE_CTL_SEGMENT: %s\n", SCIGetErrorString(sci_error));
         return UCS_ERR_NO_RESOURCE;
@@ -298,7 +299,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         return UCS_ERR_NO_RESOURCE;
     }
 
-    self->ctls = (void*) SCIMapLocalSegment(self->ctl_segment, &self->ctl_map, 0, sizeof(sci_ctl_t) * SCI_MAX_EPS, NULL, SCI_NO_FLAGS, &sci_error);
+    self->ctls = (void*) SCIMapLocalSegment(self->ctl_segment, &self->ctl_map, 0, sizeof(sci_ctl_t) * self->max_eps, NULL, SCI_NO_FLAGS, &sci_error);
 
     if(sci_error != SCI_ERR_OK) {
         printf("DMA ctl segment: %s \n", SCIGetErrorString(sci_error));
@@ -306,14 +307,14 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     } 
 
 
-    self->tx_buf = (void*) SCIMapLocalSegment(self->local_segment, &self->local_map, 0, self->send_size * SCI_MAX_EPS, NULL,0, &sci_error);
+    self->tx_buf = (void*) SCIMapLocalSegment(self->local_segment, &self->local_map, 0, self->send_size * self->max_eps, NULL,0, &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_MAP_LOCAL_SEG: %s\n", SCIGetErrorString(sci_error));
             return UCS_ERR_NO_RESOURCE;
     }
 
-    for(i = 0; i < SCI_MAX_EPS; i++) {
+    for(i = 0; i < self->max_eps; i++) {
         //int segment_id = ucs_generate_uuid(trash);
         self->sci_fds[i].status = 0;
         self->sci_fds[i].size = self->send_size;
