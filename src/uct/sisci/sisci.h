@@ -63,7 +63,7 @@ typedef struct sci_fd {
     uint32_t                offset;         /* start of our map in the global segment */
     //sci_map_t               local_map;            /*  */
     void*                   fd_buf;
-    sci_packet_t*           packet;
+    sisci_packet_t*           packet;
     /*    Control info        */
     uint32_t                ctl_id;
     sci_remote_segment_t    ctl_segment;
