@@ -44,13 +44,17 @@ typedef struct uct_sci_device_addr {
 } UCS_S_PACKED uct_sci_device_addr_t;
 
 
-typedef struct sci_map_holder {
-    volatile unsigned int* mapped;
-} sci_map_holder_t;
-
 typedef struct sci_ctl {
     unsigned int status;
 }   sci_ctl_t;
+
+
+typedef struct sisci_packet {
+    uint8_t     status;
+    uint8_t     am_id;
+    unsigned    length;
+    //void        data;
+} UCS_S_PACKED sisci_packet_t;
 
 /*
     sci file desctriptor, each endpoint connects to a different region.
@@ -100,12 +104,6 @@ typedef struct uct_sci_iface_config {
 } uct_sci_iface_config_t;
 
 
-typedef struct sisci_packet {
-    uint8_t     status;
-    uint8_t     am_id;
-    unsigned    length;
-    //void        data;
-} UCS_S_PACKED sisci_packet_t;
 
 typedef struct uct_sci_ep_zcopy_tx {
     sisci_packet_t                super;     /* UCT TCP AM header */
