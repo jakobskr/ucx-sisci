@@ -98,7 +98,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
 
     do {
         DEBUG_PRINT("waiting to connect to ctl %s\n", SCIGetErrorString(sci_error));
-        SCIConnectSegment(md->sci_virtual_device, &iface->sci_fds[i].ctl_segment, request->node_id, request->ctl_id, 
+        SCIConnectSegment(iface->vdev_ctl, &iface->sci_fds[i].ctl_segment, request->node_id, request->ctl_id, 
                 ADAPTER_NO, NULL, NULL, 0, 0, &sci_error);
         
     } while (sci_error != SCI_ERR_OK);
@@ -171,6 +171,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     unsigned int nodeID;
     unsigned int adapterID = 0;
     unsigned int flags = 0;
+    ssize_t i = 0;
     //size_t alignment, align_offset;
     //ucs_status_t status;
     sci_error_t sci_error;
@@ -225,6 +226,22 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     self->send_size   = 100000; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
     self->eps         = 0;
 
+    SCIOpen(&self->vdev_ep, 0, &sci_error);
+
+    if (sci_error != SCI_ERR_OK) { 
+        printf("SCI_OPEN_EP_VDEVS: %s\n", SCIGetErrorString(sci_error));
+        return UCS_ERR_NO_RESOURCE;
+    }
+
+    SCIOpen(&self->vdev_ctl, 0, &sci_error);
+
+    if (sci_error != SCI_ERR_OK) { 
+        printf("SCI_OPEN_EP_VDEVS: %s\n", SCIGetErrorString(sci_error));
+        return UCS_ERR_NO_RESOURCE;
+    }     
+
+    
+
     /*  recv segment    */
 
     SCICreateSegment(sci_md->sci_virtual_device, &self->local_segment, self->segment_id, self->send_size * SCI_MAX_EPS, NULL, NULL, 0, &sci_error);
@@ -270,7 +287,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     }
 
 
-    for(ssize_t i = 0; i < SCI_MAX_EPS; i++) {
+    for(i = 0; i < SCI_MAX_EPS; i++) {
         //int segment_id = ucs_generate_uuid(trash);
         self->sci_fds[i].status = 0;
         self->sci_fds[i].size = self->send_size;
@@ -398,6 +415,8 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
         self->sci_fds[i].buf = NULL;
     
     }*/
+
+    
 
     uct_base_iface_progress_disable(&self->super.super,
                                     UCT_PROGRESS_SEND |

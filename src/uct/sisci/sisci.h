@@ -133,7 +133,8 @@ typedef struct uct_sci_iface {
 
 
     /*      ctl segment, used for control during runtime between processes  */
-    sci_desc_t                  vdevs[SCI_VDEVS];
+    sci_desc_t                  vdev_ep; //Vdev used for outgoing eps
+    sci_desc_t                  vdev_ctl; //vdev used for control
     pthread_mutex_t             lock;
     unsigned int                eps;
     unsigned int                ctl_id;
