@@ -140,7 +140,7 @@ typedef struct uct_sci_iface {
     unsigned int                ctl_id;
     unsigned int                connections;
     sci_local_segment_t         ctl_segment;
-    sci_map_holder_t            ctl_map;
+    sci_map_t                   ctl_map;
     void*                       ctls;
 
 

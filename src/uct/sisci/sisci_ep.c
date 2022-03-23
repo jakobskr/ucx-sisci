@@ -277,7 +277,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
 
     //printf("sizeof adress %zd sizeof unsigned %zd size of uint %zd size of void %zd\n", sizeof(uct_sicsci_ep_addr_t),sizeof(length), sizeof(uint), sizeof(void*));
     
-    ep->sci_ctl->status = 1;
+    ctl->status = 1;
     packet->am_id = id;
     packet->length = length + sizeof(header);
     uct_am_short_fill_data(ep->buf + sizeof(sisci_packet_t), header, payload, length);
@@ -317,7 +317,7 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
         return UCS_ERR_NO_RESOURCE;
     }
 
-    ep->sci_ctl->status = 1;
+    ctl->status = 1;
     length              = pack_cb(ep->buf + sizeof(sisci_packet_t),  arg);
     packet->am_id       = id;
     packet->length      = length;
