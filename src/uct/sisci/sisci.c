@@ -177,15 +177,17 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     sci_error_t sci_error;
     unsigned dma_seg_id;
     sci_cb_data_interrupt_t callback = conn_handler;
-
+    uct_sci_iface_config_t* config = ucs_derived_of(tl_config, uct_sci_iface_config_t); 
     uct_sci_md_t * sci_md = ucs_derived_of(md, uct_sci_md_t);
 
     UCT_CHECK_PARAM(params->field_mask & UCT_IFACE_PARAM_FIELD_OPEN_MODE,
                     "UCT_IFACE_PARAM_FIELD_OPEN_MODE is not defined");
+    
     if (!(params->open_mode & UCT_IFACE_OPEN_MODE_DEVICE)) {
         ucs_error("only UCT_IFACE_OPEN_MODE_DEVICE is supported");
         return UCS_ERR_UNSUPPORTED;
     }
+
 
     if (ucs_derived_of(worker, uct_priv_worker_t)->thread_mode == UCS_THREAD_MODE_MULTI) {
         ucs_error("SCI transport does not support multi-threaded worker");
@@ -201,6 +203,8 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         printf("\n mutex init failed\n");
         return UCS_ERR_NO_RESOURCE;
     }
+
+
 
     UCS_CLASS_CALL_SUPER_INIT(
             uct_base_iface_t, &uct_sci_iface_ops, &uct_base_iface_internal_ops,
@@ -218,6 +222,8 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     if (sci_error != SCI_ERR_OK) { 
         printf("SCI_IFACE_INIT: %s\n", SCIGetErrorString(sci_error));
     } 
+
+    printf("CONFIG SEND_SIZE: %zd \n", config->send_size);
     
 
     self->device_addr = nodeID;
