@@ -320,7 +320,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         self->sci_fds[i].size = self->send_size;
         self->sci_fds[i].offset = i * self->send_size; 
         self->sci_fds[i].fd_buf = (void*) self->tx_buf + self->sci_fds[i].offset;
-        self->sci_fds[i].packet = (sci_packet_t*) self->sci_fds[i].fd_buf;
+        self->sci_fds[i].packet = (sisci_packet_t*) self->sci_fds[i].fd_buf;
         //self->sci_fds[i].segment_id = segment_id;
     }
 
@@ -659,7 +659,6 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     uct_sci_iface_t* iface = ucs_derived_of(tl_iface, uct_sci_iface_t);
     int count = 0;
     ucs_status_t status;
-    sisci_packet_t* packet; 
     
 
     for (size_t i = 0; i < iface->connections; i++)
