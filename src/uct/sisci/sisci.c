@@ -22,9 +22,15 @@ static ucs_config_field_t uct_sci_iface_config_table[] = {
      ucs_offsetof(uct_sci_iface_config_t, super),
      UCS_CONFIG_TYPE_TABLE(uct_iface_config_table)},
 
-    {"SEND_SIZE", "8k",
+    {"SEND_SIZE", "16k",
      "Size of copy-out buffer",
      ucs_offsetof(uct_sci_iface_config_t, send_size), UCS_CONFIG_TYPE_MEMUNITS},
+
+    {
+        "MAX_EPS", "30", "Max EPs for SCI tl",
+        ucs_offsetof(uct_sci_iface_config_t, max_eps),
+        UCS_CONFIG_TYPE_UINT
+    },
 
     {NULL}
 };
@@ -212,7 +218,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
             tl_config UCS_STATS_ARG(
                     (params->field_mask & UCT_IFACE_PARAM_FIELD_STATS_ROOT) ?
                             params->stats_root :
-                            NULL) UCS_STATS_ARG(UCT_sci_NAME));
+                            NULL) UCS_STATS_ARG(UCT_SCI_NAME));
     
 
 
@@ -223,13 +229,13 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         printf("SCI_IFACE_INIT: %s\n", SCIGetErrorString(sci_error));
     } 
 
-    printf("CONFIG SEND_SIZE: %zd \n", config->send_size);
+    printf("CONFIG\n\tSEND_SIZE: %zd \n\tMAX_EPS: %u", config->send_size, config->max_eps);
     
 
     self->device_addr = nodeID;
     self->segment_id  = ucs_generate_uuid(trash);
     self->ctl_id      = ucs_generate_uuid(trash);
-    self->send_size   = 262144; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
+    self->send_size   = config->send_size; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
     self->eps         = 0;
 
     SCIOpen(&self->vdev_ep, 0, &sci_error);
@@ -469,7 +475,7 @@ static ucs_status_t uct_sci_query_devices(uct_md_h md,
     */
 
     
-    status = uct_single_device_resource(md, UCT_sci_NAME,
+    status = uct_single_device_resource(md, UCT_SCI_NAME,
                                       UCT_DEVICE_TYPE_NET,
                                       UCS_SYS_DEVICE_ID_UNKNOWN, devices_p,
                                       num_devices_p);
@@ -805,7 +811,7 @@ static uct_component_t uct_sci_component = {
     .rkey_unpack        = uct_sci_md_rkey_unpack, //change me
     .rkey_ptr           = ucs_empty_function_return_unsupported, //change me 
     .rkey_release       = ucs_empty_function_return_success, //change me
-    .name               = UCT_sci_NAME, //change me
+    .name               = UCT_SCI_NAME, //change me
     .md_config          = UCT_MD_DEFAULT_CONFIG_INITIALIZER,
     /*.md_config          = {
         .name           = "Self memory domain",
@@ -864,4 +870,4 @@ static uct_iface_ops_t uct_sci_iface_ops = {
     TODO: Add the mimimum stuff required to get it to compile.
 */
 UCT_TL_DEFINE(&uct_sci_component, sci, uct_sci_query_devices, uct_sci_iface_t,
-              UCT_sci_CONFIG_PREFIX, uct_sci_iface_config_table, uct_sci_iface_config_t);
+              UCT_SCI_CONFIG_PREFIX, uct_sci_iface_config_table, uct_sci_iface_config_t);

@@ -13,13 +13,13 @@
 #include <sisci_error.h> //TODO
 #include <sisci_api.h>
 
-#define UCT_sci_NAME "sci"
-#define UCT_sci_CONFIG_PREFIX "sci_"
+#define UCT_SCI_NAME "sci"
+#define UCT_SCI_CONFIG_PREFIX "SCI_"
 
 #define ADAPTER_NO 0
 #define SCI_NO_FLAGS 0
 #define SCI_NO_CALLBACK 0
-#define SCI_MAX_EPS 10
+#define SCI_MAX_EPS 30
 #define SCI_VDEVS   3 //Max number of virtual_devices available. Each virtual descriptor should be able to handle 16 connections.
 
 #define SISCI_STATUS_WRITING_DONE 1
@@ -95,6 +95,7 @@ void sci_testing();
 typedef struct uct_sci_iface_config {
     uct_iface_config_t    super;
     size_t                send_size;      /* Maximal send size */
+    unsigned int          max_eps;
 } uct_sci_iface_config_t;
 
 
@@ -119,6 +120,7 @@ typedef struct uct_sci_iface {
     unsigned int                interrupt_id;
     unsigned int                device_addr; //nodeID
     size_t                      send_size;    /* Maximum size for payload */
+    unsigned int                max_eps;
     //ucs_mpool_t                 msg_mp;       /* Messages memory pool */
     void*                       recv_buffer;
     sci_local_segment_t         local_segment; 
@@ -131,6 +133,8 @@ typedef struct uct_sci_iface {
     unsigned int                interruptNO;
     void*                       tx_buf;
     void*                       dma_buf;
+
+
 
 
     /*      ctl segment, used for control during runtime between processes  */
