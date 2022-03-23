@@ -19,7 +19,7 @@
 #define ADAPTER_NO 0
 #define SCI_NO_FLAGS 0
 #define SCI_NO_CALLBACK 0
-#define SCI_MAX_EPS 30
+#define SCI_MAX_EPS 28
 #define SCI_VDEVS   3 //Max number of virtual_devices available. Each virtual descriptor should be able to handle 16 connections.
 
 #define SISCI_STATUS_WRITING_DONE 1
@@ -63,6 +63,7 @@ typedef struct sci_fd {
     uint32_t                offset;         /* start of our map in the global segment */
     //sci_map_t               local_map;            /*  */
     void*                   fd_buf;
+    sci_packet_t*           packet;
     /*    Control info        */
     uint32_t                ctl_id;
     sci_remote_segment_t    ctl_segment;
