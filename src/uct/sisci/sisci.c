@@ -296,14 +296,15 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
 
 
+
     for(i = 0; i < SCI_MAX_EPS; i++) {
         //int segment_id = ucs_generate_uuid(trash);
         self->sci_fds[i].status = 0;
         self->sci_fds[i].size = self->send_size;
         self->sci_fds[i].offset = i * self->send_size; 
+        self->sci_fds[i].local_buf = (void*) SCIMapLocalSegment(self->local_segment, &self->sci_fds[i].local_map, i * self->send_size, self->send_size, NULL,0, &sci_error);
         //self->sci_fds[i].segment_id = segment_id;
 
-        self->sci_fds[i].local_buf = (void*) SCIMapLocalSegment(self->local_segment, &self->sci_fds[i].local_map, i * self->send_size, self->send_size, NULL,0, &sci_error);
     
         if (sci_error != SCI_ERR_OK) { 
             printf("SCI_MAP_LOCAL_SEG: %s\n", SCIGetErrorString(sci_error));
