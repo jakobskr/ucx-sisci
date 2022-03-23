@@ -535,8 +535,7 @@ static ucs_status_t uct_sci_md_open(uct_component_t *component, const char *md_n
             return UCS_ERR_NO_RESOURCE;
         }
     
-    //SCIClose(md.sci_virtual_device, 0 , &errors);
-    //uct_sci_close();
+
     md.super.ops       = &md_ops;
     md.super.component = &uct_sci_component;
     //md.super.component->name = "sci"

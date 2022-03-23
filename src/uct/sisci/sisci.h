@@ -20,6 +20,7 @@
 #define SCI_NO_FLAGS 0
 #define SCI_NO_CALLBACK 0
 #define SCI_MAX_EPS 28
+#define SCI_VDEVS   3 //Max number of virtual_devices available. Each virtual descriptor should be able to handle 16 connections.
 
 #define SISCI_STATUS_WRITING_DONE 1
 #define SCI_PACKET_SIZE sizeof(sisci_packet_t)
@@ -130,8 +131,10 @@ typedef struct uct_sci_iface {
     unsigned int                interruptNO;
     void*                       tx_map;
 
+
     /*      ctl segment, used for control during runtime between processes  */
-    pthread_mutex_t lock;
+    sci_desc_t                  vdevs[SCI_VDEVS];
+    pthread_mutex_t             lock;
     unsigned int                eps;
     unsigned int                ctl_id;
     unsigned int                connections;
