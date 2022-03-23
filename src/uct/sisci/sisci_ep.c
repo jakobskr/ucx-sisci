@@ -267,7 +267,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
 {
     //TODO Implement the fifo queue shenanigans for am_short
     uct_sci_ep_t* ep       = ucs_derived_of(tl_ep, uct_sci_ep_t);
-    sisci_packet_t* packet = ep->buf; 
+    sci_packet_t* packet = ep->buf; 
     
     uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
     sci_ctl_t* ctl         = iface->ctls + ep->ctl_offset;
@@ -282,7 +282,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     ctl->status = 1;
     packet->am_id = id;
     packet->length = length + sizeof(header);
-    uct_am_short_fill_data(ep->buf + sizeof(sisci_packet_t), header, payload, length);
+    uct_am_short_fill_data(ep->buf + sizeof(sci_packet_t), header, payload, length);
     SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
     SCIFlush(NULL, SCI_NO_FLAGS);
@@ -308,7 +308,7 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
     
     uct_sci_ep_t*    ep     = ucs_derived_of(tl_ep, uct_sci_ep_t);
     //uct_sci_iface_t* iface  = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
-    sisci_packet_t*  packet = (sisci_packet_t*) ep->buf;
+    sci_packet_t*  packet = (sci_packet_t*) ep->buf;
     ssize_t length;
 
     uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
@@ -320,7 +320,7 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
     }
 
     ctl->status = 1;
-    length              = pack_cb(ep->buf + sizeof(sisci_packet_t),  arg);
+    length              = pack_cb(ep->buf + sizeof(sci_packet_t),  arg);
     packet->am_id       = id;
     packet->length      = length;
     SCIFlush(NULL, SCI_NO_FLAGS);
@@ -341,9 +341,9 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
 
     uct_sci_ep_t* ep            = ucs_derived_of(uct_ep, uct_sci_ep_t);
     uct_sci_iface_t* iface      = ucs_derived_of(uct_ep->iface, uct_sci_iface_t);
-    sisci_packet_t* sci_header  = ep->buf; 
+    sci_packet_t* sci_header  = ep->buf; 
     void* tx                    = (void*) iface->dma_buf;
-    sisci_packet_t* tx_pack     = (sisci_packet_t*) tx;
+    sci_packet_t* tx_pack     = (sci_packet_t*) tx;
     size_t iov_total_len        = uct_iov_total_length(iov, iovcnt);
     sci_ctl_t* ctl              = iface->ctls + ep->ctl_offset;
     size_t bytes_copied;
@@ -356,11 +356,11 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         return UCS_ERR_NO_RESOURCE;
     }
 
-    UCT_CHECK_LENGTH(header_length + iov_total_len + sizeof(sisci_packet_t), 0 , iface->send_size, "am_zcopy");
+    UCT_CHECK_LENGTH(header_length + iov_total_len + sizeof(sci_packet_t), 0 , iface->send_size, "am_zcopy");
     UCT_CHECK_AM_ID(id);
     /* Convert the iov into a contiguous buffer */
     ucs_iov_iter_init(&uct_iov_iter);
-    bytes_copied = uct_iov_to_buffer(iov, iovcnt, &uct_iov_iter, tx + sizeof(sisci_packet_t) + header_length, iface->send_size);
+    bytes_copied = uct_iov_to_buffer(iov, iovcnt, &uct_iov_iter, tx + sizeof(sci_packet_t) + header_length, iface->send_size);
 
     if(bytes_copied != iov_total_len) {
         /* Might wanna replace this with an assert */
@@ -373,7 +373,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
 
     if (header_length != 0)
     {
-        memcpy(tx + sizeof(sisci_packet_t), header, header_length);
+        memcpy(tx + sizeof(sci_packet_t), header, header_length);
     }
     
     SCIStartDmaTransfer(iface->dma_queue, iface->dma_segment, ep->remote_segment, 

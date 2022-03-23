@@ -320,7 +320,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         self->sci_fds[i].size = self->send_size;
         self->sci_fds[i].offset = i * self->send_size; 
         self->sci_fds[i].fd_buf = (void*) self->tx_buf + self->sci_fds[i].offset;
-        self->sci_fds[i].packet = (sisci_packet_t*) self->sci_fds[i].fd_buf;
+        self->sci_fds[i].packet = (sci_packet_t*) self->sci_fds[i].fd_buf;
         //self->sci_fds[i].segment_id = segment_id;
     }
 
@@ -668,7 +668,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             continue;
         }
 
-        //packet = (sisci_packet_t*) iface->sci_fds[i].fd_buf;
+        //packet = (sci_packet_t*) iface->sci_fds[i].fd_buf;
 
         if (iface->sci_fds[i].packet->status != 1) {
             continue;
@@ -676,10 +676,10 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
 
 
-        status = uct_iface_invoke_am(&iface->super, iface->sci_fds[i].packet->am_id, iface->sci_fds[i].fd_buf + sizeof(sisci_packet_t), iface->sci_fds[i].packet->length,0);
+        status = uct_iface_invoke_am(&iface->super, iface->sci_fds[i].packet->am_id, iface->sci_fds[i].fd_buf + sizeof(sci_packet_t), iface->sci_fds[i].packet->length,0);
     
 
-        //printf("sizeof struct %zd sizeof struct members: %zd\n", sizeof(sisci_packet_t), sizeof(unsigned) + sizeof(uint8_t)*2);
+        //printf("sizeof struct %zd sizeof struct members: %zd\n", sizeof(sci_packet_t), sizeof(unsigned) + sizeof(uint8_t)*2);
 
         if(status == UCS_INPROGRESS) {
             DEBUG_PRINT("UCS_IN_PROGRESS\n");

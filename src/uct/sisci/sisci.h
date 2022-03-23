@@ -23,7 +23,7 @@
 #define SCI_VDEVS   3 //Max number of virtual_devices available. Each virtual descriptor should be able to handle 16 connections.
 
 #define SISCI_STATUS_WRITING_DONE 1
-#define SCI_PACKET_SIZE sizeof(sisci_packet_t)
+#define SCI_PACKET_SIZE sizeof(sci_packet_t)
 
 // https://stackoverflow.com/questions/1941307/debug-print-macro-in-c by Tom Kuschel
 #define DEBUG 0
@@ -49,12 +49,12 @@ typedef struct sci_ctl {
 }   sci_ctl_t;
 
 
-typedef struct sisci_packet {
+typedef struct sci_packet {
     uint8_t     status;
     uint8_t     am_id;
     unsigned    length;
     //void        data;
-} UCS_S_PACKED sisci_packet_t;
+} UCS_S_PACKED sci_packet_t;
 
 /*
     sci file desctriptor, each endpoint connects to a different region.
@@ -67,7 +67,7 @@ typedef struct sci_fd {
     uint32_t                offset;         /* start of our map in the global segment */
     //sci_map_t               local_map;            /*  */
     void*                   fd_buf;
-    sisci_packet_t*           packet;
+    sci_packet_t*           packet;
     /*    Control info        */
     uint32_t                ctl_id;
     sci_remote_segment_t    ctl_segment;
@@ -106,7 +106,7 @@ typedef struct uct_sci_iface_config {
 
 
 typedef struct uct_sci_ep_zcopy_tx {
-    sisci_packet_t                super;     /* UCT TCP AM header */
+    sci_packet_t                super;     /* UCT TCP AM header */
     uct_completion_t              *comp;     /* Local UCT completion object */
     size_t                        iov_index; /* Current IOV index */
     size_t                        iov_cnt;   /* Number of IOVs that should be sent */
