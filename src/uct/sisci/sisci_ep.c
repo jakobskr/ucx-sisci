@@ -265,17 +265,12 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
 {
     //TODO Implement the fifo queue shenanigans for am_short
     uct_sci_ep_t* ep       = ucs_derived_of(tl_ep, uct_sci_ep_t);
-    uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
     sisci_packet_t* packet = ep->buf; 
+    
+    uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
     sci_ctl_t* ctl         = iface->ctls + ep->ctl_offset;
 
-
-    /* NOTE: This check adds around 1 usec of delay per message. */
-    
-    //printf("status %d \n", ep->sci_ctl->status);
-
-
-    if(ep->sci_ctl->status != 0) { 
+    if(ctl->status != 0) { 
         //printf("Error sending to %d: recv buffer not empty\n", id);
         return UCS_ERR_NO_RESOURCE;
     }
@@ -314,7 +309,11 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
     sisci_packet_t*  packet = (sisci_packet_t*) ep->buf;
     ssize_t length;
 
-    if(ep->sci_ctl->status != 0) {
+    uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
+    sci_ctl_t* ctl         = iface->ctls + ep->ctl_offset;
+
+    if(ctl->status != 0) { 
+        //printf("Error sending to %d: recv buffer not empty\n", id);
         return UCS_ERR_NO_RESOURCE;
     }
 
@@ -344,11 +343,14 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     void* tx                    = (void*) iface->tx_map;
     sisci_packet_t* tx_pack     = (sisci_packet_t*) tx;
     size_t iov_total_len        = uct_iov_total_length(iov, iovcnt);
+    sci_ctl_t* ctl              = iface->ctls + ep->ctl_offset;
     size_t bytes_copied;
     ucs_iov_iter_t uct_iov_iter;
     sci_error_t sci_error;
 
-    if(ep->sci_ctl->status != 0) {
+
+    if(ctl->status != 0) { 
+        //printf("Error sending to %d: recv buffer not empty\n", id);
         return UCS_ERR_NO_RESOURCE;
     }
 
