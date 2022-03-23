@@ -286,7 +286,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         return UCS_ERR_NO_RESOURCE;
     }
 
-    self->ctls = SCIMapLocalSegment(self->ctl_segment, &self->ctl_map, 0, sci_ctl_t * SCI_MAX_EPS, NULL, SCI_NO_FLAGS, &sci_error);
+    self->ctls = (void*) SCIMapLocalSegment(self->ctl_segment, &self->ctl_map, 0, sizeof(sci_ctl_t) * SCI_MAX_EPS, NULL, SCI_NO_FLAGS, &sci_error);
 
     if(sci_error != SCI_ERR_OK) {
         printf("DMA ctl segment: %s \n", SCIGetErrorString(sci_error));
