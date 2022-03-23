@@ -117,7 +117,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
     self->remote_node_id = answer.node_id;
     self->remote_segment_id = answer.segment_id;
     self->offset = answer.offset;
-    self->offset = iface->eps * sizeof(sci_ctl_t);
+    self->ctl_offset = iface->eps * sizeof(sci_ctl_t);
 
 
     /*  Clean up for connection.  */
