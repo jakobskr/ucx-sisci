@@ -18,11 +18,12 @@ typedef struct uct_sci_ep {
     sci_remote_segment_t    remote_segment;
     sci_map_t               remote_map;
     unsigned int            offset;
+    unsigned int            ctl_offset;
     unsigned int            remote_node_id;
     unsigned int            remote_segment_id;
     void *                  buf;
-    sci_map_t               ctl_map;
-    sci_ctl_t*              sci_ctl;              
+    //sci_map_t               ctl_map;
+    //sci_ctl_t*              sci_ctl;              
 } uct_sci_ep_t;
 
 
