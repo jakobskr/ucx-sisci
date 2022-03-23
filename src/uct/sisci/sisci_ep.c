@@ -342,7 +342,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     uct_sci_ep_t* ep            = ucs_derived_of(uct_ep, uct_sci_ep_t);
     uct_sci_iface_t* iface      = ucs_derived_of(uct_ep->iface, uct_sci_iface_t);
     sisci_packet_t* sci_header  = ep->buf; 
-    void* tx                    = (void*) iface->tx_map;
+    void* tx                    = (void*) iface->dma_buf;
     sisci_packet_t* tx_pack     = (sisci_packet_t*) tx;
     size_t iov_total_len        = uct_iov_total_length(iov, iovcnt);
     sci_ctl_t* ctl              = iface->ctls + ep->ctl_offset;
@@ -393,7 +393,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
 
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d \n", ep->remote_segment_id, ep->remote_node_id, id, sci_header->length);
 
-    memset(iface->tx_map, 0, iov_total_len + header_length + SCI_PACKET_SIZE);
+    memset(iface->dma_buf, 0, iov_total_len + header_length + SCI_PACKET_SIZE);
     //ucs_free(tx);
     return UCS_OK;    
 }

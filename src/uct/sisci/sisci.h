@@ -61,8 +61,8 @@ typedef struct sci_fd {
     int                     remote_node;    
     /*        rx info          */
     uint32_t                offset;         /* start of our map in the global segment */
-    sci_map_t               local_map;            /*  */
-    void*                   local_buf;
+    //sci_map_t               local_map;            /*  */
+    void*                   fd_buf;
     /*    Control info        */
     uint32_t                ctl_id;
     sci_remote_segment_t    ctl_segment;
@@ -129,7 +129,8 @@ typedef struct uct_sci_iface {
     sci_fd_t                    sci_fds[SCI_MAX_EPS];
     sci_local_data_interrupt_t  interrupt; 
     unsigned int                interruptNO;
-    void*                       tx_map;
+    void*                       tx_buf;
+    void*                       dma_buf;
 
 
     /*      ctl segment, used for control during runtime between processes  */

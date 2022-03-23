@@ -294,23 +294,20 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     } 
 
 
+    self->tx_buf = (void*) SCIMapLocalSegment(self->local_segment, &self->local_map, 0, self->send_size * SCI_MAX_EPS, NULL,0, &sci_error);
 
-
+    if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_MAP_LOCAL_SEG: %s\n", SCIGetErrorString(sci_error));
+            return UCS_ERR_NO_RESOURCE;
+    }
 
     for(i = 0; i < SCI_MAX_EPS; i++) {
         //int segment_id = ucs_generate_uuid(trash);
         self->sci_fds[i].status = 0;
         self->sci_fds[i].size = self->send_size;
         self->sci_fds[i].offset = i * self->send_size; 
-        self->sci_fds[i].local_buf = (void*) SCIMapLocalSegment(self->local_segment, &self->sci_fds[i].local_map, i * self->send_size, self->send_size, NULL,0, &sci_error);
+        self->sci_fds[i].fd_buf = (void*) self->tx_buf + self->sci_fds[i].offset;
         //self->sci_fds[i].segment_id = segment_id;
-
-    
-        if (sci_error != SCI_ERR_OK) { 
-            printf("SCI_MAP_LOCAL_SEG: %s\n", SCIGetErrorString(sci_error));
-            return UCS_ERR_NO_RESOURCE;
-        }
-
     }
 
 
@@ -338,7 +335,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         return UCS_ERR_NO_RESOURCE;
     } 
 
-    self->tx_map = SCIMapLocalSegment(self->dma_segment, &self->dma_map, 0, self->send_size, NULL, SCI_NO_FLAGS, &sci_error);
+    self->dma_buf = SCIMapLocalSegment(self->dma_segment, &self->dma_map, 0, self->send_size, NULL, SCI_NO_FLAGS, &sci_error);
 
     if(sci_error != SCI_ERR_OK) {
         printf("DMA map segment: %s \n", SCIGetErrorString(sci_error));
@@ -651,14 +648,14 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     sisci_packet_t* packet; 
     
 
-    for (size_t i = 0; i < SCI_MAX_EPS; i++)
+    for (size_t i = 0; i < iface->connections; i++)
     {
         
         if(iface->sci_fds[i].status != 1) {
             continue;
         }
 
-        packet = (sisci_packet_t*) iface->sci_fds[i].local_buf;
+        packet = (sisci_packet_t*) iface->sci_fds[i].fd_buf;
 
         if (packet->status != 1) {
             continue;
@@ -666,7 +663,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
 
 
-        status = uct_iface_invoke_am(&iface->super, packet->am_id, iface->sci_fds[i].local_buf + sizeof(sisci_packet_t), packet->length,0);
+        status = uct_iface_invoke_am(&iface->super, packet->am_id, iface->sci_fds[i].fd_buf + sizeof(sisci_packet_t), packet->length,0);
     
 
         //printf("sizeof struct %zd sizeof struct members: %zd\n", sizeof(sisci_packet_t), sizeof(unsigned) + sizeof(uint8_t)*2);
