@@ -435,7 +435,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     // TODO: THIS!
     for(ssize_t i = 0; i < self->connections; i++) {
         self->sci_fds[i].status = 3;
-        printf("connections %d i %d\n", self->connections, i);
+        printf("connections %d i %zd\n", self->connections, i);
         
         /*SCIUnmapSegment(self->sci_fds[i].ctl_map, 0, &sci_error);
     
