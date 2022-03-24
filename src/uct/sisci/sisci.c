@@ -409,7 +409,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     */
     sci_error_t sci_error;
     
-    printf("closed iface\n");
+    DEBUG_PRINT("closed iface\n");
 
     uct_base_iface_progress_disable(&self->super.super,
                                     UCT_PROGRESS_SEND |
@@ -427,8 +427,6 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     if(sci_error != SCI_ERR_OK) {
         printf("IFACE CLOSE, Failed to remove dma queue: %s\n", SCIGetErrorString(sci_error));
     }
-
-    printf("before fds\n");
 
     // TODO: THIS!
     for(ssize_t i = 0; i < self->connections; i++) {
@@ -451,19 +449,18 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     
     }
 
-    printf("after fds\n");
 
     /* RX  */
 
     SCIUnmapSegment(self->local_map, 0, &sci_error);
 
-    SCISetSegmentUnavailable(self->local_segment,0,SCI_FLAG_FORCE_DISCONNECT,&sci_error);
+    SCISetSegmentUnavailable(self->local_segment,0,SCI_NO_FLAGS,&sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_SET_RX_UNAVAILABLE: %s\n", SCIGetErrorString(sci_error));
     }
 
-    SCIRemoveSegment(self->local_segment, SCI_NO_FLAGS, &sci_error);
+    SCIRemoveSegment(self->local_segment, SCI_FLAG_FORCE_REMOVE , &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_REMOVE_RX: %s\n", SCIGetErrorString(sci_error));
@@ -489,7 +486,6 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     /* Closing device descriptors used for connections */
     SCIClose(self->vdev_ctl, SCI_NO_FLAGS, &sci_error);
     SCIClose(self->vdev_ep, SCI_NO_FLAGS, &sci_error);
-    printf("iface close done\n");
 }
 
 UCS_CLASS_DEFINE(uct_sci_iface_t, uct_base_iface_t);
