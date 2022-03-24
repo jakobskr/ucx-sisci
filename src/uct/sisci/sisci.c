@@ -448,7 +448,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
             printf("SCI_DISCONNECT_SEGMENT: %s\n", SCIGetErrorString(sci_error));
         }
 
-        self->sci_fds[i].buf = NULL;
+        self->sci_fds[i].fd_buf = NULL;
     
     }
 
