@@ -463,7 +463,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
             printf("SCI_SET_RX_UNAVAILABLE: %s\n", SCIGetErrorString(sci_error));
     }
 
-    SCIRemoveSegment(self->local_segment, SCI_FLAG_FORCE_REMOVE , &sci_error);
+    SCIRemoveSegment(self->local_segment, SCI_NO_FLAGS, &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_REMOVE_RX: %s\n", SCIGetErrorString(sci_error));
