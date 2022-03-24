@@ -474,13 +474,13 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
 
     SCIUnmapSegment(self->ctl_map, 0, &sci_error);
 
-    SCISetSegmentUnavailable(self->ctl_segment,0,SCI_FLAG_FORCE_DISCONNECT,&sci_error);
+    SCISetSegmentUnavailable(self->ctl_segment,0,SCI_NO_FLAGS,&sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_SET_CTL_UNAVAILABLE: %s\n", SCIGetErrorString(sci_error));
     }
 
-    SCIRemoveSegment(self->ctl_segment, SCI_FLAG_FORCE_REMOVE , &sci_error);
+    SCIRemoveSegment(self->ctl_segment, SCI_NO_FLAGS , &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_REMOVE_CTL: %s\n", SCIGetErrorString(sci_error));
@@ -490,7 +490,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     /* Closing device descriptors used for connections */
     SCIClose(self->vdev_ctl, SCI_NO_FLAGS, &sci_error);
     SCIClose(self->vdev_ep, SCI_NO_FLAGS, &sci_error);
-
+    printf("iface close done\n");
 }
 
 UCS_CLASS_DEFINE(uct_sci_iface_t, uct_base_iface_t);
