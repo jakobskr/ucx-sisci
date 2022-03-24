@@ -442,7 +442,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
         }
 
 
-        SCIDisconnectSegment(self->ctl_segment, 0, &sci_error);
+        SCIDisconnectSegment(self->sci_fds[i].ctl_segment, 0, &sci_error);
 
         if (sci_error != SCI_ERR_OK) { 
             printf("SCI_DISCONNECT_SEGMENT: %s\n", SCIGetErrorString(sci_error));
