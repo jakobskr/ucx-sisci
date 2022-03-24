@@ -41,7 +41,18 @@ static ucs_config_field_t uct_sci_iface_config_table[] = {
     NULL
 };*/
 
-
+/**
+ * @brief This function handles incoming connection requests and assigns a sci file descriptor to that connection.
+ * Then it replies with information back to the connecting request to enable the incoming conneciton to connect and offset correctly
+ * into the iface's recv buffer. The iface also connects to the connectors control block, so we can signal it when we are ready to recv data.
+ * 
+ * @param arg iface 
+ * @param interrupt which interrupt was triggered
+ * @param data: Information received from the connecting process
+ * @param length: length of data
+ * @param sci_error: Not used
+ * @return sci_callback_action_t: Returns callback_continue  
+ */
 sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interrupt, void* data, unsigned int length, sci_error_t sci_error) {
     sci_remote_data_interrupt_t ans_interrupt;
     //sci_error_t sci_error;
@@ -229,7 +240,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         printf("SCI_IFACE_INIT: %s\n", SCIGetErrorString(sci_error));
     } 
 
-    printf("CONFIG\n\tSEND_SIZE: %zd \n\tMAX_EPS: %u\n", config->send_size, config->max_eps);
+    DEBUG_PRINT("CONFIG\n\tSEND_SIZE: %zd \n\tMAX_EPS: %u\n", config->send_size, config->max_eps);
     
 
     self->device_addr = nodeID;
@@ -695,11 +706,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             
             iface->sci_fds[i].ctl_buf->status = 0;
             SCIFlush(NULL, SCI_NO_FLAGS);
-            
-                
-            /*packet->am_id = 0;            
-            packet->length = 0;*/
-            //memset(iface->sci_fds[i].buf, 0 ,packet->length + SCI_PACKET_SIZE);
+
         }
 
         else {
@@ -717,7 +724,6 @@ static ucs_status_t uct_sci_iface_query(uct_iface_h tl_iface, uct_iface_attr_t *
 
     uct_sci_iface_t* iface = ucs_derived_of(tl_iface, uct_sci_iface_t);
 
-    //TODO: find out why we need this
     if (!iface_query_printed) {
         DEBUG_PRINT("iface querried\n");
     }
