@@ -326,15 +326,12 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     }
 
     for(i = 0; i < self->max_eps; i++) {
-        //int segment_id = ucs_generate_uuid(trash);
         self->sci_fds[i].status = 0;
         self->sci_fds[i].size = self->send_size;
         self->sci_fds[i].offset = i * self->send_size; 
         self->sci_fds[i].fd_buf = (void*) self->tx_buf + self->sci_fds[i].offset;
         self->sci_fds[i].packet = (sci_packet_t*) self->sci_fds[i].fd_buf;
-        //self->sci_fds[i].segment_id = segment_id;
     }
-
 
     /*----------------- DMA starts here ---------------*/
     /*TODO: add a reasonable number of max entries for SCICreateDMAQueue instead of 5.*/
@@ -438,12 +435,11 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
         self->sci_fds[i].status = 3;
         printf("connections %d i %zd\n", self->connections, i);
         
-        /*SCIUnmapSegment(self->sci_fds[i].ctl_map, 0, &sci_error);
+        SCIUnmapSegment(self->sci_fds[i].ctl_map, 0, &sci_error);
     
         if (sci_error != SCI_ERR_OK) { 
         printf("SCI_UNMAP_SEGMENT: %s\n", SCIGetErrorString(sci_error));
         }
-        */
 
         SCIDisconnectSegment(self->sci_fds[i].ctl_segment, 0, &sci_error);
 
