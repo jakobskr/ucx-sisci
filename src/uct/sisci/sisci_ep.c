@@ -26,6 +26,8 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_ep_t)
     }
     */
 
+    SCIUnmapSegment(self->remote_map, 0, &sci_error);
+
     SCIDisconnectSegment(self->remote_segment, 0, &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 

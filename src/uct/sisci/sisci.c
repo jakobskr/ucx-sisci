@@ -413,8 +413,17 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     
     DEBUG_PRINT("closed iface\n");
 
+    uct_base_iface_progress_disable(&self->super.super,
+                                    UCT_PROGRESS_SEND |
+                                    UCT_PROGRESS_RECV);
+
     pthread_mutex_destroy(&self->lock);
 
+
+    /* DMA */
+
+    SCIUnmapSegment(self->dma_map, SCI_NO_FLAGS, &sci_error);
+    SCIRemoveSegment(self->dma_segment, 0,SCI_FLAG_FORCE_REMOVE, &sci_error);
     SCIRemoveDMAQueue(self->dma_queue, SCI_NO_FLAGS, &sci_error);
 
     if(sci_error != SCI_ERR_OK) {
@@ -422,36 +431,63 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     }
 
 
-    /* TODO: THIS!
-    for(ssize_t i = 0; i < SCI_MAX_EPS; i++) {
+    // TODO: THIS!
+    for(ssize_t i = 0; i < self->connections; i++) {
         self->sci_fds[i].status = 3;
-        SCIUnmapSegment(self->sci_fds[i].map, 0, &sci_error);
+        
+        SCIUnmapSegment(self->sci_fds[i].ctl_map, 0, &sci_error);
     
         if (sci_error != SCI_ERR_OK) { 
         printf("SCI_UNMAP_SEGMENT: %s\n", SCIGetErrorString(sci_error));
         }
 
-        SCISetSegmentUnavailable(self->sci_fds[i].local_segment, 0,0,&sci_error);
+
+        SCIDisconnectSegment(self->ctl_segment, 0, &sci_error);
 
         if (sci_error != SCI_ERR_OK) { 
-            printf("SCI_SET_SEGMENT_UN: %s\n", SCIGetErrorString(sci_error));
-        }
-
-        SCIRemoveSegment(self->sci_fds[i].local_segment, 0 , &sci_error);
-
-        if (sci_error != SCI_ERR_OK) { 
-            printf("SCI_REMOVE_SEGMENT: %s\n", SCIGetErrorString(sci_error));
+            printf("SCI_DISCONNECT_SEGMENT: %s\n", SCIGetErrorString(sci_error));
         }
 
         self->sci_fds[i].buf = NULL;
     
-    }*/
+    }
+
+    /* RX  */
+
+    SCIUnmapSegment(self->local_map, 0, &sci_error);
+
+    SCISetSegmentUnavailable(self->local_segment,0,SCI_FLAG_FORCE_DISCONNECT,&sci_error);
+
+    if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_SET_RX_UNAVAILABLE: %s\n", SCIGetErrorString(sci_error));
+    }
+
+    SCIRemoveSegment(self->local_segment, 0, SCI_FLAG_FORCE_REMOVE , &sci_error);
+
+    if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_REMOVE_RX: %s\n", SCIGetErrorString(sci_error));
+    }
+
+    /* CTL */
+
+    SCIUnmapSegment(self->ctl_map, 0, &sci_error);
+
+    SCISetSegmentUnavailable(self->ctl_segment,0,SCI_FLAG_FORCE_DISCONNECT,&sci_error);
+
+    if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_SET_CTL_UNAVAILABLE: %s\n", SCIGetErrorString(sci_error));
+    }
+
+    SCIRemoveSegment(self->ctl_segment, 0, SCI_FLAG_FORCE_REMOVE , &sci_error);
+
+    if (sci_error != SCI_ERR_OK) { 
+            printf("SCI_REMOVE_CTL: %s\n", SCIGetErrorString(sci_error));
+    }
 
 
-
-    uct_base_iface_progress_disable(&self->super.super,
-                                    UCT_PROGRESS_SEND |
-                                    UCT_PROGRESS_RECV);
+    /* Closing device descriptors used for connections */
+    SCIClose(self->vdev_ctl, SCI_NO_FLAGS, &sci_error);
+    SCIClose(self->vdev_ep, SCI_NO_FLAGS, &sci_error);
 
 }
 
