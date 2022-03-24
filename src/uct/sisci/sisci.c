@@ -452,6 +452,8 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     
     }
 
+    printf("after fds\n");
+
     /* RX  */
 
     SCIUnmapSegment(self->local_map, 0, &sci_error);
