@@ -11,7 +11,6 @@ sisci_2048     -t am_bw -D short  -d sci -x sci 2048 -s    2048 -n 100000
 sisci_4096     -t am_bw -D short  -d sci -x sci 4096 -s    4096 -n 100000
 sisci_8192     -t am_bw -D short  -d sci -x sci 8192 -s    8192 -n 100000
 
-#sisci_2097152  -t am_bw -D short  -d sci -x sci   2097152 -s 2097152 -n 300
 #TCP
 tcp_8        -t am_bw -D short  -d enp9s0 -x tcp   -s       8 -n 10000
 tcp_16       -t am_bw -D short  -d enp9s0 -x tcp   -s      16 -n 10000
