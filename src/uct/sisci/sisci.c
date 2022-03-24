@@ -411,7 +411,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
     */
     sci_error_t sci_error;
     
-    DEBUG_PRINT("closed iface\n");
+    printf("closed iface\n");
 
     uct_base_iface_progress_disable(&self->super.super,
                                     UCT_PROGRESS_SEND |
@@ -430,6 +430,7 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
         printf("IFACE CLOSE, Failed to remove dma queue: %s\n", SCIGetErrorString(sci_error));
     }
 
+    printf("before fds\n");
 
     // TODO: THIS!
     for(ssize_t i = 0; i < self->connections; i++) {
