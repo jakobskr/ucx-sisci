@@ -248,6 +248,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     self->send_size   = config->send_size; //this is probbably arbitrary, and could be higher. 2^16 was just selected for looks
     self->eps         = 0;
     self->max_eps     = MIN(SCI_MAX_EPS, config->max_eps);
+    self->connections = 0;
 
     SCIOpen(&self->vdev_ep, 0, &sci_error);
 
