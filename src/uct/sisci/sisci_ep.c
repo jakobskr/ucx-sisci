@@ -144,7 +144,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
 
     } while (sci_error != SCI_ERR_OK);
 
-    self->buf = (void *) SCIMapRemoteSegment(self->remote_segment, &self->remote_map, self->offset, iface->send_size, NULL, 0, &sci_error);
+    self->buf = (void *) SCIMapRemoteSegment(self->remote_segment, &self->remote_map, self->offset, iface->send_size * self->queue_size, NULL, 0, &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
         printf("SCI_MAP_REM_SEG: %s\n", SCIGetErrorString(sci_error));
@@ -292,9 +292,9 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     //printf("sizeof adress %zd sizeof unsigned %zd size of uint %zd size of void %zd\n", sizeof(uct_sicsci_ep_addr_t),sizeof(length), sizeof(uint), sizeof(void*));
     
     offset = ep->send_size * (ep->seq % ep->queue_size);
-    printf("short check smile \n");
     packet = ep->buf + offset;
 
+    printf("short check smile \n");
     ctl->status = 1;
     packet->am_id = id;
     packet->length = length + sizeof(header);
