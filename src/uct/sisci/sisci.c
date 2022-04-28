@@ -682,7 +682,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     */
     for (size_t i = 0; i < iface->connections; i++) {
         sci_fd_t* fd = &iface->sci_fds[i];
-        printf("happens\n");
+        //printf("happens\n");
         
         if(fd->status != 1) {
             continue;
@@ -691,8 +691,9 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
 
 
         offset = iface->send_size * ((fd->last_ack + 1) % iface->queue_size);
-        printf("smile\n");
         packet = fd->fd_buf + offset; 
+        
+        printf("smile packet->status%d last_ack %d\n", packet->status, fd->last_ack);
         
         if (packet->status != 1) {
             continue;
