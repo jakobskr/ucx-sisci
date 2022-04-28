@@ -34,7 +34,7 @@ static ucs_config_field_t uct_sci_iface_config_table[] = {
 
     {
         "QUEUE_SIZE", "5", "Message Queue size for each connection",
-        ucs_offsetof(uct_sci_iface_config_t, max_eps),
+        ucs_offsetof(uct_sci_iface_config_t, queue_size),
         UCS_CONFIG_TYPE_UINT
     },
 
