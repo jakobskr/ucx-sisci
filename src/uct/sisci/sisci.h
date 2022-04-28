@@ -57,17 +57,20 @@ typedef struct sci_packet {
 } UCS_S_PACKED sci_packet_t;
 
 /*
-    sci file desctriptor, each endpoint connects to a different region.
+    sci file desctriptor, each incoming connection gets assigned a different section of the segment.
+    We are using one large segment, with a single map for this segment. So each FD is given an offset
+    into the global offset.
 */
 typedef struct sci_fd {
-    int                     status;         /* taken | available | ready |  */
-    int                     size;           /* size */
+    int                     status; /* taken | available | ready |  */
+    int                     size;   /* size */
     int                     remote_node;    
+    
     /*        rx info          */
-    uint32_t                offset;         /* start of our map in the global segment */
-    //sci_map_t               local_map;            /*  */
+    uint32_t                offset; /* start of our map in the global segment */
     void*                   fd_buf;
     sci_packet_t*           packet;
+    
     /*    Control info        */
     uint32_t                ctl_id;
     sci_remote_segment_t    ctl_segment;
@@ -133,9 +136,6 @@ typedef struct uct_sci_iface {
     void*                       tx_buf;
     void*                       dma_buf;
 
-
-
-
     /*      ctl segment, used for control during runtime between processes  */
     sci_desc_t                  vdev_ep; //Vdev used for outgoing eps
     sci_desc_t                  vdev_ctl; //vdev used for control
@@ -146,8 +146,6 @@ typedef struct uct_sci_iface {
     sci_local_segment_t         ctl_segment;
     sci_map_t                   ctl_map;
     void*                       ctls;
-
-
 } uct_sci_iface_t;
 
 ucs_status_t uct_sci_query_tl_devices(uct_md_h md, uct_tl_device_resource_t **tl_devices_p,
