@@ -681,6 +681,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         
     */
     for (size_t i = 0; i < iface->connections; i++) {
+        print("happens\n");
         sci_fd_t* fd = &iface->sci_fds[i];
         
         if(fd->status != 1) {
@@ -694,7 +695,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             continue;
         }
         
-        //DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
+        DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
         status = uct_iface_invoke_am(&iface->super, fd->packet->am_id, fd->fd_buf + offset + sizeof(sci_packet_t), fd->packet->length,0);
     
         if(status == UCS_INPROGRESS) {
