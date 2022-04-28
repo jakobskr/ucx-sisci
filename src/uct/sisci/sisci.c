@@ -706,7 +706,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         }
         
         if(status == UCS_OK) {
-            fd->packet->status = 0;
+            packet->status = 0;
             fd->ctl_buf->status = 0;
             fd->ctl_buf->ack = fd->last_ack + 1; 
             SCIFlush(NULL, SCI_NO_FLAGS);
