@@ -699,7 +699,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         
         
         //DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
-        status = uct_iface_invoke_am(&iface->super, fd->packet->am_id, fd->fd_buf + offset + sizeof(sci_packet_t), fd->packet->length,0);
+        status = uct_iface_invoke_am(&iface->super, packet->am_id, fd->fd_buf + offset + sizeof(sci_packet_t), packet->length,0);
     
         if(status == UCS_INPROGRESS) {
             DEBUG_PRINT("UCS_IN_PROGRESS\n");
@@ -717,7 +717,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             printf("something went wrong %d\n", status);
         }
 
-        printf("you ack'ed %d \n", fd->last_ack - 1);
+        printf("you ack'ed %d \n", fd->last_ack);
 
         
     }
