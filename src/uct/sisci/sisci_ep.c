@@ -281,7 +281,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     }
     */
 
-    printf("short start smile \n");
+    //printf("short start smile \n");
 
     if (ep->seq - ctl->ack >= iface->queue_size)
     {
