@@ -680,13 +680,13 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         
     */
     for (size_t i = 0; i < iface->connections; i++) {
-        sci_fd_t* fd = iface->sci_fds[i];
+        sci_fd_t* fd = &iface->sci_fds[i];
         
         if(fd->status != 1) {
             continue;
         }
 
-        offset = iface->send_size * ((last_ack + 1) % iface->send_size);
+        offset = iface->send_size * ((fd->last_ack + 1) % iface->send_size);
         packet = (sci_packet_t *) fd->fd_buf + offset; 
         
         if (packet->status != 1) {
