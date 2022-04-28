@@ -291,8 +291,8 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
 
     //printf("sizeof adress %zd sizeof unsigned %zd size of uint %zd size of void %zd\n", sizeof(uct_sicsci_ep_addr_t),sizeof(length), sizeof(uint), sizeof(void*));
     
-
     offset = ep->send_size * (ep->seq % ep->queue_size);
+    printf("short check smile \n");
     packet = ep->buf + offset;
 
     ctl->status = 1;
