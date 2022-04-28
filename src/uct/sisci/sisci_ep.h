@@ -17,11 +17,14 @@ typedef struct uct_sci_ep {
     uct_base_ep_t           super;
     sci_remote_segment_t    remote_segment;
     sci_map_t               remote_map;
+    unsigned int            send_size;
+    unsigned int            queue_size;
     unsigned int            offset;
     unsigned int            ctl_offset;
     unsigned int            remote_node_id;
     unsigned int            remote_segment_id;
     void *                  buf;
+    uint32_t                seq;
     //sci_map_t               ctl_map;
     //sci_ctl_t*              sci_ctl;              
 } uct_sci_ep_t;

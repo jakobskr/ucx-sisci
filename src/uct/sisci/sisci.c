@@ -96,6 +96,8 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     answer.node_id    = iface->device_addr;
     answer.segment_id = iface->segment_id;
     answer.offset     = iface->sci_fds[i].offset;
+    answer.send_size  = iface->send_size;
+    answer.queue_size = iface->queue_size;
 
     SCITriggerDataInterrupt(ans_interrupt, (void *) &answer, sizeof(answer), SCI_NO_FLAGS, &sci_error);
 
@@ -330,6 +332,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
         self->sci_fds[i].offset = i * self->send_size * 3; 
         self->sci_fds[i].fd_buf = (void*) self->tx_buf + self->sci_fds[i].offset;
         self->sci_fds[i].packet = (sci_packet_t*) self->sci_fds[i].fd_buf;
+        self->sci_fds[i].last_ack = 0;
     }
 
     /*----------------- DMA starts here ---------------*/
@@ -668,32 +671,44 @@ void uct_sci_iface_progress_enable(uct_iface_h iface, unsigned flags) {
 
 unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     uct_sci_iface_t* iface = ucs_derived_of(tl_iface, uct_sci_iface_t);
-    int count = 0;
+    int       count  = 0;
+    uint32_t  offset = 0;
     ucs_status_t status;
-    
-    for (size_t i = 0; i < iface->connections; i++)
-    {
+    sci_packet_t* packet;
+
+    /*
         
-        if(iface->sci_fds[i].status != 1) {
+    */
+    for (size_t i = 0; i < iface->connections; i++) {
+        sci_fd_t* fd = iface->sci_fds[i];
+        
+        if(fd->status != 1) {
             continue;
         }
 
-        if (iface->sci_fds[i].packet->status != 1) {
+        offset = iface->send_size * ((last_ack + 1) % iface->send_size);
+        packet = (sci_packet_t *) fd->fd_buf + offset; 
+        
+        if (packet->status != 1) {
             continue;
         }
         
-        DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
-        status = uct_iface_invoke_am(&iface->super, iface->sci_fds[i].packet->am_id, iface->sci_fds[i].fd_buf + sizeof(sci_packet_t), iface->sci_fds[i].packet->length,0);
+        //DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
+        status = uct_iface_invoke_am(&iface->super, fd->packet->am_id, fd->fd_buf + offset + sizeof(sci_packet_t), fd->packet->length,0);
     
         if(status == UCS_INPROGRESS) {
             DEBUG_PRINT("UCS_IN_PROGRESS\n");
         }
         
         if(status == UCS_OK) {
-            iface->sci_fds[i].packet->status = 0;
-            iface->sci_fds[i].ctl_buf->status = 0;
+            fd->packet->status = 0;
+            fd->ctl_buf->status = 0;
+            fd->ctl_buf->ack = fd->last_ack + 1; 
             SCIFlush(NULL, SCI_NO_FLAGS);
+            fd->last_ack++;
         }
+
+        printf("ack'ed %d \n", fd->last_ack - 1);
 
         else {
             printf("something went wrong %d\n", status);

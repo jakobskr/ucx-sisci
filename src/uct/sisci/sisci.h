@@ -46,6 +46,7 @@ typedef struct uct_sci_device_addr {
 
 typedef struct sci_ctl {
     unsigned int status;
+    uint32_t     ack;
 }   sci_ctl_t;
 
 
@@ -64,7 +65,8 @@ typedef struct sci_packet {
 typedef struct sci_fd {
     int                     status; /* taken | available | ready |  */
     int                     size;   /* size */
-    int                     remote_node;    
+    int                     remote_node;
+    uint32_t                last_ack;
     
     /*        rx info          */
     uint32_t                offset; /* start of our map in the global segment */
@@ -91,6 +93,8 @@ typedef struct con_ans {
     unsigned int node_id;
     unsigned int segment_id;
     unsigned int offset;
+    unsigned int send_size;
+    unsigned int queue_size;
 } con_ans_t;
 
 

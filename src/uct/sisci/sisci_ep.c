@@ -114,10 +114,13 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
     //printf("node %d segment %d\n", answer.node_id, answer.segment_id);
 
 
-    self->remote_node_id = answer.node_id;
+    self->remote_node_id    = answer.node_id;
     self->remote_segment_id = answer.segment_id;
-    self->offset = answer.offset;
-    self->ctl_offset = iface->eps * sizeof(sci_ctl_t);
+    self->offset            = answer.offset;
+    self->send_size         = answer.send_size;
+    self->queue_size        = answer.queue_size;
+    self->ctl_offset        = iface->eps * sizeof(sci_ctl_t);
+    self->seq               = 1;
 
 
     /*  Clean up for connection.  */
@@ -265,20 +268,30 @@ ucs_status_t uct_sci_ep_atomic_cswap32(uct_ep_h tl_ep, uint32_t compare,
 ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
                                   const void *payload, unsigned length)
 {
-    //TODO Implement the fifo queue shenanigans for am_short
+
     uct_sci_ep_t* ep       = ucs_derived_of(tl_ep, uct_sci_ep_t);
     sci_packet_t* packet = ep->buf; 
     
     uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
     sci_ctl_t* ctl         = iface->ctls + ep->ctl_offset;
-
+    uint32_t offset = 0;    
+    
+    /*
     if(ctl->status != 0) { 
-        //printf("Error sending to %d: recv buffer not empty\n", id);
         return UCS_ERR_NO_RESOURCE;
     }
+    */
+
+    if (ep->seq - ctl->ack >= iface->queue_size)
+    {
+        return UCS_ERR_NO_RESOURCE;
+    }
+    
 
     //printf("sizeof adress %zd sizeof unsigned %zd size of uint %zd size of void %zd\n", sizeof(uct_sicsci_ep_addr_t),sizeof(length), sizeof(uint), sizeof(void*));
     
+
+    offset = ep->send_size * (ep->seq % ep->queue_size);
     ctl->status = 1;
     packet->am_id = id;
     packet->length = length + sizeof(header);
@@ -286,8 +299,8 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
     SCIFlush(NULL, SCI_NO_FLAGS);
-
-    DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d \n", ep->remote_segment_id, ep->remote_node_id, id, packet->length);
+    ep->seq++;
+    DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d SEQ:%d\n", ep->remote_segment_id, ep->remote_node_id, id, packet->length, ep->seq);
     
     return UCS_OK;
 }
