@@ -693,13 +693,16 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         offset = iface->send_size * ((fd->last_ack + 1) % iface->queue_size);
         packet = fd->fd_buf + offset; 
         
+        
+
         printf("smile packet->status%d last_ack %d\n", packet->status, fd->last_ack);
         
         if (packet->status != 1) {
             continue;
         }
         
-        DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
+        
+        //DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
         status = uct_iface_invoke_am(&iface->super, fd->packet->am_id, fd->fd_buf + offset + sizeof(sci_packet_t), fd->packet->length,0);
     
         if(status == UCS_INPROGRESS) {
