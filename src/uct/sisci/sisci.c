@@ -32,6 +32,12 @@ static ucs_config_field_t uct_sci_iface_config_table[] = {
         UCS_CONFIG_TYPE_UINT
     },
 
+    {
+        "QUEUE_SIZE", "5", "Message Queue size for each connection",
+        ucs_offsetof(uct_sci_iface_config_t, max_eps),
+        UCS_CONFIG_TYPE_UINT
+    },
+
     {NULL}
 };
 
@@ -251,7 +257,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     self->eps         = 0;
     self->max_eps     = MIN(SCI_MAX_EPS, config->max_eps);
     self->connections = 0;
-    self->queue_size  = 3;
+    self->queue_size  = config->queue_size;
 
     SCIOpen(&self->vdev_ep, 0, &sci_error);
 

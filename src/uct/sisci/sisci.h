@@ -191,7 +191,7 @@ typedef struct uct_sci_md_config {
     size_t          num_devices; /* Number of devices to create */
     size_t          segment_size;
     size_t          segment_id;
-    
+    size_t          queue_size;
 } uct_sci_md_config_t;
 
 
