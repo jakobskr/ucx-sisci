@@ -688,7 +688,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             continue;
         }
 
-        offset = iface->send_size * ((fd->last_ack + 1) % iface->send_size);
+        offset = iface->send_size * ((fd->last_ack + 1) % iface->queue_size);
         packet = (sci_packet_t *) fd->fd_buf + offset; 
         
         if (packet->status != 1) {
