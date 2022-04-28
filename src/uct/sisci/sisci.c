@@ -676,6 +676,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     ucs_status_t status;
     sci_packet_t* packet;
 
+    printf("iface progress start\n");
     /*
         
     */
