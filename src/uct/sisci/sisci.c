@@ -682,7 +682,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     */
     for (size_t i = 0; i < iface->connections; i++) {
         sci_fd_t* fd = &iface->sci_fds[i];
-        print("happens\n");
+        printf("happens\n");
         
         if(fd->status != 1) {
             continue;
