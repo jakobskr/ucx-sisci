@@ -302,7 +302,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
     SCIFlush(NULL, SCI_NO_FLAGS);
-    printf("sent SEQ: %d\n", ep->seq);
+    //printf("sent SEQ: %d\n", ep->seq);
     ep->seq++;
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d SEQ:%d\n", ep->remote_segment_id, ep->remote_node_id, id, packet->length, ep->seq);
     
