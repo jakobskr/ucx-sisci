@@ -249,6 +249,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     self->eps         = 0;
     self->max_eps     = MIN(SCI_MAX_EPS, config->max_eps);
     self->connections = 0;
+    self->queue_size  = 3;
 
     SCIOpen(&self->vdev_ep, 0, &sci_error);
 
@@ -266,7 +267,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     /*  recv segment    */
 
-    SCICreateSegment(sci_md->sci_virtual_device, &self->local_segment, self->segment_id, self->send_size * self->max_eps, NULL, NULL, 0, &sci_error);
+    SCICreateSegment(sci_md->sci_virtual_device, &self->local_segment, self->segment_id, self->send_size * self->max_eps * self->queue_size, NULL, NULL, 0, &sci_error);
     
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_CREATE_RECV_SEGMENT: %s\n", SCIGetErrorString(sci_error));
@@ -316,7 +317,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     } 
 
 
-    self->tx_buf = (void*) SCIMapLocalSegment(self->local_segment, &self->local_map, 0, self->send_size * self->max_eps, NULL,0, &sci_error);
+    self->tx_buf = (void*) SCIMapLocalSegment(self->local_segment, &self->local_map, 0, self->send_size * self->max_eps * self->queue_size, NULL,0, &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
             printf("SCI_MAP_LOCAL_SEG: %s\n", SCIGetErrorString(sci_error));
@@ -325,8 +326,8 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     for(i = 0; i < self->max_eps; i++) {
         self->sci_fds[i].status = 0;
-        self->sci_fds[i].size = self->send_size;
-        self->sci_fds[i].offset = i * self->send_size; 
+        self->sci_fds[i].size = self->send_size * 3;
+        self->sci_fds[i].offset = i * self->send_size * 3; 
         self->sci_fds[i].fd_buf = (void*) self->tx_buf + self->sci_fds[i].offset;
         self->sci_fds[i].packet = (sci_packet_t*) self->sci_fds[i].fd_buf;
     }

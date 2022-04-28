@@ -135,6 +135,7 @@ typedef struct uct_sci_iface {
     unsigned int                interruptNO;
     void*                       tx_buf;
     void*                       dma_buf;
+    uint32_t                    queue_size;
 
     /*      ctl segment, used for control during runtime between processes  */
     sci_desc_t                  vdev_ep; //Vdev used for outgoing eps
