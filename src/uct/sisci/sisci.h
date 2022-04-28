@@ -108,6 +108,8 @@ typedef struct uct_sci_iface_config {
     uct_iface_config_t    super;
     size_t                send_size;      /* Maximal send size */
     unsigned int          max_eps;
+    unsigned int          queue_size;
+
 } uct_sci_iface_config_t;
 
 
@@ -191,7 +193,6 @@ typedef struct uct_sci_md_config {
     size_t          num_devices; /* Number of devices to create */
     size_t          segment_size;
     size_t          segment_id;
-    size_t          queue_size;
 } uct_sci_md_config_t;
 
 
