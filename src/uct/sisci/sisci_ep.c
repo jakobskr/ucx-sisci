@@ -270,8 +270,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
 {
 
     uct_sci_ep_t* ep       = ucs_derived_of(tl_ep, uct_sci_ep_t);
-    sci_packet_t* packet = ep->buf; 
-    
+    sci_packet_t* packet; 
     uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
     sci_ctl_t* ctl         = iface->ctls + ep->ctl_offset;
     uint32_t offset = 0;    
@@ -292,13 +291,15 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     
 
     offset = ep->send_size * (ep->seq % ep->queue_size);
+    packet = (sci_packet_t*) ep->buf + offset;
     ctl->status = 1;
     packet->am_id = id;
     packet->length = length + sizeof(header);
-    uct_am_short_fill_data(ep->buf + sizeof(sci_packet_t), header, payload, length);
+    uct_am_short_fill_data(ep->buf + offset + sizeof(sci_packet_t), header, payload, length);
     SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
     SCIFlush(NULL, SCI_NO_FLAGS);
+    printf("sent SEQ: %d\n", ep->seq);
     ep->seq++;
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d SEQ:%d\n", ep->remote_segment_id, ep->remote_node_id, id, packet->length, ep->seq);
     

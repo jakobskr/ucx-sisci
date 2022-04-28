@@ -708,11 +708,13 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             fd->last_ack++;
         }
 
-        printf("ack'ed %d \n", fd->last_ack - 1);
-
         else {
             printf("something went wrong %d\n", status);
         }
+
+        printf("you ack'ed %d \n", fd->last_ack - 1);
+
+        
     }
     
     return count;
