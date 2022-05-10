@@ -275,16 +275,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     sci_ctl_t* ctl         = iface->ctls + ep->ctl_offset;
     uint32_t offset = 0;    
     
-    /*
-    if(ctl->status != 0) { 
-        return UCS_ERR_NO_RESOURCE;
-    }
-    */
-
-    //printf("short start smile \n");
-
-    if (ep->seq - ctl->ack >= iface->queue_size)
-    {
+    if (ep->seq - ctl->ack >= iface->queue_size) {
         return UCS_ERR_NO_RESOURCE;
     }
     
@@ -321,23 +312,23 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
                              uct_pack_callback_t pack_cb, void *arg,
                              unsigned flags)
 {
-    //TODO bcopy
-    
+    //TODO bcopy    
     uct_sci_ep_t*    ep     = ucs_derived_of(tl_ep, uct_sci_ep_t);
-    //uct_sci_iface_t* iface  = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
-    sci_packet_t*  packet = (sci_packet_t*) ep->buf;
+    sci_packet_t*  packet;
     ssize_t length;
-
     uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
     sci_ctl_t* ctl         = iface->ctls + ep->ctl_offset;
+    uint32_t offset        = 0;
 
-    if(ctl->status != 0) { 
-        //printf("Error sending to %d: recv buffer not empty\n", id);
+    if(ep->seq - ctl->ack >= iface->queue_size) {
         return UCS_ERR_NO_RESOURCE;
     }
 
+    offset = ep->send_size * (ep->seq % ep->queue_size);
+    packet = ep->buf + offset;
+
     ctl->status = 1;
-    length              = pack_cb(ep->buf + sizeof(sci_packet_t),  arg);
+    length              = pack_cb((void*) packet + sizeof(sci_packet_t),  arg);
     packet->am_id       = id;
     packet->length      = length;
     SCIFlush(NULL, SCI_NO_FLAGS);
