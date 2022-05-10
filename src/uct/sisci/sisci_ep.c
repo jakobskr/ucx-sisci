@@ -313,19 +313,21 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
                              unsigned flags)
 {
     //TODO bcopy    
-    uct_sci_ep_t*    ep     = ucs_derived_of(tl_ep, uct_sci_ep_t);
+    uct_sci_ep_t*    ep    = ucs_derived_of(tl_ep, uct_sci_ep_t);
     sci_packet_t*  packet;
-    ssize_t length;
     uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
     sci_ctl_t* ctl         = iface->ctls + ep->ctl_offset;
+    ssize_t length         = 0;
     uint32_t offset        = 0;
 
     if(ep->seq - ctl->ack >= iface->queue_size) {
         return UCS_ERR_NO_RESOURCE;
     }
 
+
     offset = ep->send_size * (ep->seq % ep->queue_size);
     packet = ep->buf + offset;
+    printf("bocpy offset %d\n", offset);
 
     ctl->status = 1;
     length              = pack_cb((void*) packet + sizeof(sci_packet_t),  arg);
