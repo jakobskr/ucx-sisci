@@ -278,14 +278,9 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     if (ep->seq - ctl->ack >= iface->queue_size) {
         return UCS_ERR_NO_RESOURCE;
     }
-    
-
-    //printf("sizeof adress %zd sizeof unsigned %zd size of uint %zd size of void %zd\n", sizeof(uct_sicsci_ep_addr_t),sizeof(length), sizeof(uint), sizeof(void*));
-    
+        
     offset = ep->send_size * (ep->seq % ep->queue_size);
     packet = ep->buf + offset;
-
-    //printf("short check smile \n");
     ctl->status = 1;
     packet->am_id = id;
     packet->length = length + sizeof(header);
@@ -293,10 +288,8 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
     SCIFlush(NULL, SCI_NO_FLAGS);
-    //printf("sent SEQ: %d\n", ep->seq);
     ep->seq++;
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d SEQ:%d\n", ep->remote_segment_id, ep->remote_node_id, id, packet->length, ep->seq);
-    
     return UCS_OK;
 }
 
@@ -327,7 +320,6 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
 
     offset = ep->send_size * (ep->seq % ep->queue_size);
     packet = ep->buf + offset;
-    printf("bocpy offset %d\n", offset);
 
     ctl->status = 1;
     length              = pack_cb((void*) packet + sizeof(sci_packet_t),  arg);
@@ -341,7 +333,6 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
 
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d \n", ep->remote_segment_id, ep->remote_node_id, id, packet->length);
 
-    //printf("uct_sci_ep_am_bcopy()\n");
     return length;
 }
 
