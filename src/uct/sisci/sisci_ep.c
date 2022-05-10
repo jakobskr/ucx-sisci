@@ -337,6 +337,7 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
 
     packet->status = 1;
     SCIFlush(NULL, SCI_NO_FLAGS);
+    ep->seq++;
 
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d \n", ep->remote_segment_id, ep->remote_node_id, id, packet->length);
 
