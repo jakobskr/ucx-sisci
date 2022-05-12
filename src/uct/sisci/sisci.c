@@ -97,8 +97,6 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
 
     /*  leave critical  */
     pthread_mutex_unlock(&iface->lock);
-    
-
     answer.node_id    = iface->device_addr;
     answer.segment_id = iface->segment_id;
     answer.offset     = iface->sci_fds[i].offset;
@@ -131,7 +129,6 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     }
 
     iface->sci_fds[i].status = 1;
-
     /* NOTE: does not return any error messages of any kind */
     SCIDisconnectDataInterrupt(ans_interrupt, SCI_NO_FLAGS, &sci_error);
 
@@ -334,8 +331,8 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     for(i = 0; i < self->max_eps; i++) {
         self->sci_fds[i].status = 0;
-        self->sci_fds[i].size = self->send_size * 3;
-        self->sci_fds[i].offset = i * self->send_size * 3; 
+        self->sci_fds[i].size = self->send_size * self->queue_size;
+        self->sci_fds[i].offset = i * self->send_size * self->queue_size; 
         self->sci_fds[i].fd_buf = (void*) self->tx_buf + self->sci_fds[i].offset;
         self->sci_fds[i].packet = (sci_packet_t*) self->sci_fds[i].fd_buf;
         self->sci_fds[i].last_ack = 0;
@@ -874,5 +871,15 @@ static uct_iface_ops_t uct_sci_iface_ops = {
 };
 
 
+/**
+ * @brief Construct a new uct tl define object
+ *  component:
+ *  tranport name
+ *  device_query()
+ *  iface type
+ *  config prefix
+ *  config table
+ *  type of config table
+ */
 UCT_TL_DEFINE(&uct_sci_component, sci, uct_sci_query_devices, uct_sci_iface_t,
               UCT_SCI_CONFIG_PREFIX, uct_sci_iface_config_table, uct_sci_iface_config_t);

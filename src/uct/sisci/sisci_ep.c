@@ -127,13 +127,13 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
     SCIDisconnectDataInterrupt(req_interrupt, SCI_NO_FLAGS, &sci_error);
 
     if(sci_error == SCI_ERR_BUSY) {
-        printf("SCIRemoveDataInterrupt: Interrupt still being used by anoter proccess");
+        printf("SCIRemoveDataInterrupt: Interrupt still being used by another proccess");
     }
 
     SCIRemoveDataInterrupt(ans_interrupt, SCI_NO_FLAGS, &sci_error);
 
     if(sci_error == SCI_ERR_BUSY) {
-        printf("SCIRemoveDataInterrupt: Interrupt still being used by anoter proccess");
+        printf("SCIRemoveDataInterrupt: Interrupt still being used by another proccess");
     }
 
     do {
