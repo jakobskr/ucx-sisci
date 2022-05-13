@@ -59,10 +59,10 @@ typedef struct sci_packet {
 
 /*
     sci file desctriptor, each incoming connection gets assigned a different section of the segment.
-    We are using one large segment, with a single map for this segment. So each FD is given an offset
+    We are using one large segment, with a single map for this segment. So each cd is given an offset
     into the global offset.
 */
-typedef struct sci_fd {
+typedef struct sci_cd {
     int                     status; /* taken | available | ready |  */
     int                     size;   /* size */
     int                     remote_node;
@@ -70,7 +70,7 @@ typedef struct sci_fd {
     
     /*        rx info          */
     uint32_t                offset; /* start of our map in the global segment */
-    void*                   fd_buf;
+    void*                   cd_buf;
     sci_packet_t*           packet;
     
     /*    Control info        */
@@ -78,7 +78,7 @@ typedef struct sci_fd {
     sci_remote_segment_t    ctl_segment;
     sci_map_t               ctl_map;
     sci_ctl_t*              ctl_buf;
-} sci_fd_t;
+} sci_cd_t;
 
 typedef struct con_req {
     uint8_t status;
@@ -136,7 +136,7 @@ typedef struct uct_sci_iface {
     sci_dma_queue_t             dma_queue;
     sci_local_segment_t         dma_segment;
     sci_map_t                   dma_map;
-    sci_fd_t                    sci_fds[SCI_MAX_EPS];
+    sci_cd_t                    sci_cds[SCI_MAX_EPS];
     sci_local_data_interrupt_t  interrupt; 
     unsigned int                interruptNO;
     void*                       tx_buf;

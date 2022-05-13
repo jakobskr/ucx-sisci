@@ -87,8 +87,8 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
 
     for (i = 0; i < iface->max_eps; i++)
     {
-        if(iface->sci_fds[i].status == 0) {
-            iface->sci_fds[i].status = 2;
+        if(iface->sci_cds[i].status == 0) {
+            iface->sci_cds[i].status = 2;
             break;
         }
     }
@@ -99,7 +99,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
     pthread_mutex_unlock(&iface->lock);
     answer.node_id    = iface->device_addr;
     answer.segment_id = iface->segment_id;
-    answer.offset     = iface->sci_fds[i].offset;
+    answer.offset     = iface->sci_cds[i].offset;
     answer.send_size  = iface->send_size;
     answer.queue_size = iface->queue_size;
 
@@ -113,14 +113,14 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
 
     do {
         DEBUG_PRINT("waiting to connect to ctl %s\n", SCIGetErrorString(sci_error));
-        SCIConnectSegment(iface->vdev_ctl, &iface->sci_fds[i].ctl_segment, request->node_id, request->ctl_id, 
+        SCIConnectSegment(iface->vdev_ctl, &iface->sci_cds[i].ctl_segment, request->node_id, request->ctl_id, 
                 ADAPTER_NO, NULL, NULL, 0, 0, &sci_error);
         
     } while (sci_error != SCI_ERR_OK);
 
 
-    //printf("fd ctl offset %d \n", request->ctl_offset);
-    iface->sci_fds[i].ctl_buf = (sci_ctl_t *) SCIMapRemoteSegment(iface->sci_fds[i].ctl_segment, &iface->sci_fds[i].ctl_map, request->ctl_offset, 
+    //printf("cd ctl offset %d \n", request->ctl_offset);
+    iface->sci_cds[i].ctl_buf = (sci_ctl_t *) SCIMapRemoteSegment(iface->sci_cds[i].ctl_segment, &iface->sci_cds[i].ctl_map, request->ctl_offset, 
                                                                   sizeof(sci_ctl_t), NULL, 0, &sci_error);
 
     if (sci_error != SCI_ERR_OK) { 
@@ -128,7 +128,7 @@ sci_callback_action_t conn_handler(void* arg, sci_local_data_interrupt_t interru
         return UCS_ERR_NO_RESOURCE;
     }
 
-    iface->sci_fds[i].status = 1;
+    iface->sci_cds[i].status = 1;
     /* NOTE: does not return any error messages of any kind */
     SCIDisconnectDataInterrupt(ans_interrupt, SCI_NO_FLAGS, &sci_error);
 
@@ -330,12 +330,12 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
     }
 
     for(i = 0; i < self->max_eps; i++) {
-        self->sci_fds[i].status = 0;
-        self->sci_fds[i].size = self->send_size * self->queue_size;
-        self->sci_fds[i].offset = i * self->send_size * self->queue_size; 
-        self->sci_fds[i].fd_buf = (void*) self->tx_buf + self->sci_fds[i].offset;
-        self->sci_fds[i].packet = (sci_packet_t*) self->sci_fds[i].fd_buf;
-        self->sci_fds[i].last_ack = 0;
+        self->sci_cds[i].status = 0;
+        self->sci_cds[i].size = self->send_size * self->queue_size;
+        self->sci_cds[i].offset = i * self->send_size * self->queue_size; 
+        self->sci_cds[i].cd_buf = (void*) self->tx_buf + self->sci_cds[i].offset;
+        self->sci_cds[i].packet = (sci_packet_t*) self->sci_cds[i].cd_buf;
+        self->sci_cds[i].last_ack = 0;
     }
 
     /*----------------- DMA starts here ---------------*/
@@ -435,15 +435,15 @@ static UCS_CLASS_CLEANUP_FUNC(uct_sci_iface_t)
 
     // TODO: THIS!
     for(ssize_t i = 0; i < self->connections; i++) {
-        self->sci_fds[i].status = 3;
+        self->sci_cds[i].status = 3;
         
-        SCIUnmapSegment(self->sci_fds[i].ctl_map, 0, &sci_error);
+        SCIUnmapSegment(self->sci_cds[i].ctl_map, 0, &sci_error);
     
         if (sci_error != SCI_ERR_OK) { 
         printf("SCI_UNMAP_SEGMENT: %s\n", SCIGetErrorString(sci_error));
         }
 
-        SCIDisconnectSegment(self->sci_fds[i].ctl_segment, 0, &sci_error);
+        SCIDisconnectSegment(self->sci_cds[i].ctl_segment, 0, &sci_error);
 
         if (sci_error != SCI_ERR_OK) { 
             printf("SCI_DISCONNECT_SEGMENT: %s\n", SCIGetErrorString(sci_error));
@@ -679,30 +679,21 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     ucs_status_t status;
     sci_packet_t* packet;
 
-    //printf("iface progress start\n");
-    /*
-        
-    */
     for (size_t i = 0; i < iface->connections; i++) {
-        sci_fd_t* fd = &iface->sci_fds[i];
-        //printf("happens\n");
+        sci_cd_t* cd = &iface->sci_cds[i];
         
-        if(fd->status != 1) {
+        if(cd->status != 1) {
             continue;
         }
 
-        offset = iface->send_size * ((fd->last_ack + 1) % iface->queue_size);
-        packet = fd->fd_buf + offset; 
-
-        //printf("smile packet->status %d last_ack %d next_spot %d\n", packet->status, fd->last_ack, (fd->last_ack + 1) % iface->queue_size);
+        offset = iface->send_size * ((cd->last_ack + 1) % iface->queue_size);
+        packet = cd->cd_buf + offset; 
         
         if (packet->status != 1) {
             continue;
         }
         
-        
-        //DEBUG_PRINT("process_packet: length: %d from %d\n", packet->length,  packet->am_id );
-        status = uct_iface_invoke_am(&iface->super, packet->am_id, fd->fd_buf + offset + sizeof(sci_packet_t), packet->length,0);
+        status = uct_iface_invoke_am(&iface->super, packet->am_id, cd->cd_buf + offset + sizeof(sci_packet_t), packet->length,0);
     
         if(status == UCS_INPROGRESS) {
             DEBUG_PRINT("UCS_IN_PROGRESS\n");
@@ -710,19 +701,16 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         
         if(status == UCS_OK) {
             packet->status = 0;
-            fd->ctl_buf->status = 0;
-            fd->ctl_buf->ack = fd->last_ack + 1; 
+            cd->ctl_buf->status = 0;
+            cd->ctl_buf->ack = cd->last_ack + 1; 
             SCIFlush(NULL, SCI_NO_FLAGS);
-            fd->last_ack++;
+            cd->last_ack++;
         }
 
         else {
             printf("something went wrong %d\n", status);
         }
-
-        //printf("you ack'ed %d \n", fd->last_ack);
-
-        
+                
     }
     
     return count;
