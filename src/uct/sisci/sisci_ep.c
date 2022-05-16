@@ -120,7 +120,8 @@ static UCS_CLASS_INIT_FUNC(uct_sci_ep_t, const uct_ep_params_t *params) {
     self->send_size         = answer.send_size;
     self->queue_size        = answer.queue_size;
     self->ctl_offset        = iface->eps * sizeof(sci_ctl_t);
-    self->seq               = 0;
+    /* quick fix for weird behaviour when queue size was 1...*/
+    self->seq               = self->queue_size > 1 ? 1 : 0;
 
 
     /*  Clean up for connection.  */
