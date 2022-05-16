@@ -710,6 +710,8 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
         else {
             printf("something went wrong %d\n", status);
         }
+
+        ++count;
                 
     }
     
