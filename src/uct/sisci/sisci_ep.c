@@ -358,7 +358,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         return UCS_ERR_NO_RESOURCE;
     }
 
-    print("1\n");
+    printf("1\n");
 
     ctl->status = 1;
 
@@ -367,7 +367,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     
     sci_header = (sci_packet_t*) ep->buf + offset;
 
-        print("2\n");
+        printf("2\n");
 
 
     UCT_CHECK_LENGTH(header_length + iov_total_len + sizeof(sci_packet_t), 0 , iface->send_size, "am_zcopy");
@@ -385,7 +385,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     tx_pack->am_id = id;
     tx_pack->length = iov_total_len + header_length;
 
-        print("3\n");
+        printf("3\n");
 
 
     if (header_length != 0)
@@ -402,7 +402,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         printf("DMA Transfer Error: %s\n", SCIGetErrorString(sci_error));
     }
 
-        print("4\n");
+        printf("4\n");
 
 
     SCIWaitForDMAQueue(iface->dma_queue, SCI_INFINITE_TIMEOUT, SCI_NO_FLAGS, &sci_error);
