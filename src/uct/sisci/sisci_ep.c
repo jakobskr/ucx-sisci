@@ -343,9 +343,9 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
 
     uct_sci_ep_t* ep            = ucs_derived_of(uct_ep, uct_sci_ep_t);
     uct_sci_iface_t* iface      = ucs_derived_of(uct_ep->iface, uct_sci_iface_t);
-    sci_packet_t* sci_header  = ep->buf; 
+    sci_packet_t* sci_header; 
     void* tx                    = (void*) iface->dma_buf;
-    sci_packet_t* tx_pack     = (sci_packet_t*) tx;
+    sci_packet_t* tx_pack       = (sci_packet_t*) tx;
     size_t iov_total_len        = uct_iov_total_length(iov, iovcnt);
     sci_ctl_t* ctl              = iface->ctls + ep->ctl_offset;
     size_t bytes_copied;
@@ -358,10 +358,12 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         return UCS_ERR_NO_RESOURCE;
     }
 
+    ctl->status = 1;
+
     offset = ep->send_size * (ep->seq % ep->queue_size);
     
     
-    sci_header = ep->buf + offset;
+    sci_header = (sci_packet_t*) ep->buf + offset;
 
     UCT_CHECK_LENGTH(header_length + iov_total_len + sizeof(sci_packet_t), 0 , iface->send_size, "am_zcopy");
     UCT_CHECK_AM_ID(id);
@@ -384,7 +386,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     }
     
     SCIStartDmaTransfer(iface->dma_queue, iface->dma_segment, ep->remote_segment, 
-                        0, iov_total_len + header_length + SCI_PACKET_SIZE, offset,
+                        0, iov_total_len + header_length + SCI_PACKET_SIZE, ep->offset + offset,
                         SCI_NO_CALLBACK, NULL, SCI_NO_FLAGS, &sci_error);
     
 
