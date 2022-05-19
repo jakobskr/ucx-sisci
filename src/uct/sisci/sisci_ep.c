@@ -340,7 +340,6 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
 ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header, unsigned header_length, 
                             const uct_iov_t *iov, size_t iovcnt, unsigned flags, uct_completion_t *comp) 
 {
-    //TODO First make it work with only pio, then add transfer via DMA queue.  
 
     uct_sci_ep_t* ep            = ucs_derived_of(uct_ep, uct_sci_ep_t);
     uct_sci_iface_t* iface      = ucs_derived_of(uct_ep->iface, uct_sci_iface_t);
@@ -352,12 +351,17 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     size_t bytes_copied;
     ucs_iov_iter_t uct_iov_iter;
     sci_error_t sci_error;
+    uint32_t offset;
 
 
-    if(ctl->status != 0) { 
-        //printf("Error sending to %d: recv buffer not empty\n", id);
+    if(ep->seq - ctl->ack >= iface->queue_size) {
         return UCS_ERR_NO_RESOURCE;
     }
+
+    offset = ep->send_size * (ep->seq % ep->queue_size);
+    
+    
+    sci_header = ep->buf + offset;
 
     UCT_CHECK_LENGTH(header_length + iov_total_len + sizeof(sci_packet_t), 0 , iface->send_size, "am_zcopy");
     UCT_CHECK_AM_ID(id);
@@ -380,7 +384,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     }
     
     SCIStartDmaTransfer(iface->dma_queue, iface->dma_segment, ep->remote_segment, 
-                        0, iov_total_len + header_length + SCI_PACKET_SIZE, ep->offset,
+                        0, iov_total_len + header_length + SCI_PACKET_SIZE, offset,
                         SCI_NO_CALLBACK, NULL, SCI_NO_FLAGS, &sci_error);
     
 
