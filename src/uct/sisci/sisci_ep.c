@@ -390,7 +390,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     tx_pack->am_id = id;
     tx_pack->length = iov_total_len + header_length;
 
-        printf("3\n");
+        //printf("3\n");
 
 
     if (header_length != 0)
