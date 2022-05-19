@@ -358,7 +358,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         return UCS_ERR_NO_RESOURCE;
     }
 
-    printf("1 %zd\n", iface->send_size);
+    //printf("1 %zd\n", iface->send_size);
 
     ctl->status = 1;
 
@@ -367,7 +367,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     
     sci_header = ep->buf + offset;
 
-    printf("2\n");
+    //printf("2\n");
 
 
     UCT_CHECK_LENGTH(header_length + iov_total_len + sizeof(sci_packet_t), 0 , iface->send_size, "am_zcopy");
@@ -375,7 +375,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     /* Convert the iov into a contiguous buffer */
     ucs_iov_iter_init(&uct_iov_iter);
 
-    printf("2.2\n");
+    //printf("2.2\n");
 
     bytes_copied = uct_iov_to_buffer(iov, iovcnt, &uct_iov_iter, tx + sizeof(sci_packet_t) + header_length, iface->send_size);
 
@@ -384,7 +384,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         printf("PANIK\n");
     }
 
-    printf("2.5\n");
+    //printf("2.5\n");
 
     /* Set header values */
     tx_pack->am_id = id;
@@ -407,7 +407,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         printf("DMA Transfer Error: %s\n", SCIGetErrorString(sci_error));
     }
 
-    printf("4\n");
+    //printf("4\n");
 
 
     SCIWaitForDMAQueue(iface->dma_queue, SCI_INFINITE_TIMEOUT, SCI_NO_FLAGS, &sci_error);
