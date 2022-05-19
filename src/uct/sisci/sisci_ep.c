@@ -365,7 +365,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     offset = ep->send_size * (ep->seq % ep->queue_size);
     
     
-    sci_header = (sci_packet_t*) ep->buf + offset;
+    sci_header = ep->buf + offset;
 
     printf("2\n");
 
@@ -407,7 +407,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         printf("DMA Transfer Error: %s\n", SCIGetErrorString(sci_error));
     }
 
-        printf("4\n");
+    printf("4\n");
 
 
     SCIWaitForDMAQueue(iface->dma_queue, SCI_INFINITE_TIMEOUT, SCI_NO_FLAGS, &sci_error);
