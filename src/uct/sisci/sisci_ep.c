@@ -399,7 +399,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     }
     
     SCIStartDmaTransfer(iface->dma_queue, iface->dma_segment, ep->remote_segment, 
-                        0, iov_total_len + header_length + SCI_PACKET_SIZE, ep->offset + offset,
+                        0, iov_total_len + header_length + SCI_PACKET_SIZE, offset,
                         SCI_NO_CALLBACK, NULL, SCI_NO_FLAGS, &sci_error);
     
 
@@ -418,7 +418,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
 
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d \n", ep->remote_segment_id, ep->remote_node_id, id, sci_header->length);
 
-    memset(iface->dma_buf, 0, iov_total_len + header_length + SCI_PACKET_SIZE);
+    //memset(iface->dma_buf, 0, iov_total_len + header_length + SCI_PACKET_SIZE);
     //ucs_free(tx);
     return UCS_OK;    
 }
