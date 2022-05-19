@@ -344,7 +344,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     uct_sci_ep_t* ep            = ucs_derived_of(uct_ep, uct_sci_ep_t);
     uct_sci_iface_t* iface      = ucs_derived_of(uct_ep->iface, uct_sci_iface_t);
     sci_packet_t* sci_header; 
-    void* tx                    = (void*) iface->dma_buf;
+    void* tx                    = iface->dma_buf;
     sci_packet_t* tx_pack       = (sci_packet_t*) tx;
     size_t iov_total_len        = uct_iov_total_length(iov, iovcnt);
     sci_ctl_t* ctl              = iface->ctls + ep->ctl_offset;
@@ -374,6 +374,9 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     UCT_CHECK_AM_ID(id);
     /* Convert the iov into a contiguous buffer */
     ucs_iov_iter_init(&uct_iov_iter);
+
+    printf("2.2\n");
+
     bytes_copied = uct_iov_to_buffer(iov, iovcnt, &uct_iov_iter, tx + sizeof(sci_packet_t) + header_length, iface->send_size);
 
     if(bytes_copied != iov_total_len) {
