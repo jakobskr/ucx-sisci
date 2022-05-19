@@ -27,7 +27,7 @@ static ucs_config_field_t uct_sci_iface_config_table[] = {
      ucs_offsetof(uct_sci_iface_config_t, send_size), UCS_CONFIG_TYPE_MEMUNITS},
 
     {
-        "MAX_EPS", "28", "Max EPs for SCI tl",
+        "MAX_EPS", "24", "Max EPs for SCI tl",
         ucs_offsetof(uct_sci_iface_config_t, max_eps),
         UCS_CONFIG_TYPE_UINT
     },
