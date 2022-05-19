@@ -367,7 +367,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     
     sci_header = (sci_packet_t*) ep->buf + offset;
 
-        printf("2\n");
+    printf("2\n");
 
 
     UCT_CHECK_LENGTH(header_length + iov_total_len + sizeof(sci_packet_t), 0 , iface->send_size, "am_zcopy");
@@ -380,6 +380,8 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         /* Might wanna replace this with an assert */
         printf("PANIK\n");
     }
+
+    printf("2.5\n");
 
     /* Set header values */
     tx_pack->am_id = id;
