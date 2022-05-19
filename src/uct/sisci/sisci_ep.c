@@ -358,7 +358,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
         return UCS_ERR_NO_RESOURCE;
     }
 
-    printf("1 %d\n", iface->send_size);
+    printf("1 %zd\n", iface->send_size);
 
     ctl->status = 1;
 
