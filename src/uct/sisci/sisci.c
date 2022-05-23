@@ -654,7 +654,6 @@ ucs_status_t uct_sci_get_device_address(uct_iface_h iface, uct_device_addr_t *ad
 ucs_status_t uct_sci_iface_get_address(uct_iface_h tl_iface,
                                                uct_iface_addr_t *addr)
 {
-    //TODO: Don't lie, but get iface_addr from config.
     
     uct_sci_iface_t* iface = ucs_derived_of(tl_iface, uct_sci_iface_t);
     
