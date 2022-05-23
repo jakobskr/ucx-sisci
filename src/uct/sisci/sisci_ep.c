@@ -367,8 +367,6 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     
     sci_header = ep->buf + offset;
 
-    //printf("2\n");
-
 
     UCT_CHECK_LENGTH(header_length + iov_total_len + sizeof(sci_packet_t), 0 , iface->send_size, "am_zcopy");
     UCT_CHECK_AM_ID(id);
@@ -410,7 +408,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     //printf("4\n");
 
 
-    //SCIWaitForDMAQueue(iface->dma_queue, SCI_INFINITE_TIMEOUT, SCI_NO_FLAGS, &sci_error);
+    SCIWaitForDMAQueue(iface->dma_queue, SCI_INFINITE_TIMEOUT, SCI_NO_FLAGS, &sci_error);
     ep->seq++;
     sci_header->status = 1;
     SCIFlush(NULL, SCI_NO_FLAGS);
@@ -418,8 +416,6 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
 
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d \n", ep->remote_segment_id, ep->remote_node_id, id, sci_header->length);
 
-    //memset(iface->dma_buf, 0, iov_total_len + header_length + SCI_PACKET_SIZE);
-    //ucs_free(tx);
     return UCS_OK;    
 }
 
