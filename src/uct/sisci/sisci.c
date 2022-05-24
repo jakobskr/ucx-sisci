@@ -18,7 +18,7 @@ static uct_component_t uct_sci_component;
 
 
 static ucs_config_field_t uct_sci_iface_config_table[] = {
-    {"", "MAX_NUM_EPS=32", NULL,
+    {"", "MAX_NUM_EPS=16", NULL,
      ucs_offsetof(uct_sci_iface_config_t, super),
      UCS_CONFIG_TYPE_TABLE(uct_iface_config_table)},
 
@@ -674,9 +674,12 @@ void uct_sci_iface_progress_enable(uct_iface_h iface, unsigned flags) {
 unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
     uct_sci_iface_t* iface = ucs_derived_of(tl_iface, uct_sci_iface_t);
     int       count  = 0;
+    int found_message = 0;
     uint32_t  offset = 0;
     ucs_status_t status;
     sci_packet_t* packet;
+
+    retry:
 
     for (size_t i = 0; i < iface->connections; i++) {
         sci_cd_t* cd = &iface->sci_cds[i];
@@ -704,6 +707,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             cd->ctl_buf->ack = cd->last_ack + 1; 
             SCIFlush(NULL, SCI_NO_FLAGS);
             cd->last_ack++;
+            found_message = 1;
         }
 
         else {
@@ -712,6 +716,11 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
 
         ++count;
                 
+    }
+
+    if (found_message) {
+        found_message = 0;
+        goto retry;
     }
     
     return count;
