@@ -340,7 +340,7 @@ static UCS_CLASS_INIT_FUNC(uct_sci_iface_t, uct_md_h md, uct_worker_h worker,
 
     /*----------------- DMA starts here ---------------*/
     /*TODO: add a reasonable number of max entries for SCICreateDMAQueue instead of 5.*/
-    SCICreateDMAQueue(sci_md->sci_virtual_device, &self->dma_queue, 0, 5, SCI_NO_FLAGS, &sci_error);
+    SCICreateDMAQueue(sci_md->sci_virtual_device, &self->dma_queue, 0, 10, SCI_NO_FLAGS, &sci_error);
 
     if(sci_error != SCI_ERR_OK) {
         printf("CreateDMAQueue: %s \n", SCIGetErrorString(sci_error));
