@@ -286,7 +286,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     packet->am_id = id;
     packet->length = length + sizeof(header);
     uct_am_short_fill_data(ep->buf + offset + sizeof(sci_packet_t), header, payload, length);
-    //SCIFlush(NULL, SCI_NO_FLAGS);    
+    SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
     //SCIFlush(NULL, SCI_NO_FLAGS);
     ep->seq++;
