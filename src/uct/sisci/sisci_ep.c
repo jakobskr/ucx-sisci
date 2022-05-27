@@ -294,7 +294,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     } UCS_S_PACKED *am_packet = (struct uct_am_short_packet*)ep->buf + offset + sizeof(sci_packet_t);
     am_packet->header = header;
 
-    SCIMemWrite(payload,am_packet->payload, length, 0, &sci_error_t);
+    SCIMemWrite((void*) payload,am_packet->payload, length, 0, &sci_error_t);
     
     //SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
