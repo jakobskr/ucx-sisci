@@ -280,7 +280,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     struct uct_am_short_packet {
         uint64_t header;
         char     payload[];
-    } UCS_S_PACKED *am_packet
+    } UCS_S_PACKED *am_packet;
     
     if (ep->seq - ctl->ack >= iface->queue_size) {
         return UCS_ERR_NO_RESOURCE;
