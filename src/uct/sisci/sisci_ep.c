@@ -288,7 +288,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     uct_am_short_fill_data(ep->buf + offset + sizeof(sci_packet_t), header, payload, length);
     SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
-    //SCIFlush(NULL, SCI_NO_FLAGS);
+    SCIFlush(NULL, SCI_NO_FLAGS);
     ep->seq++;
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d SEQ:%d\n", ep->remote_segment_id, ep->remote_node_id, id, packet->length, ep->seq);
     return UCS_OK;
