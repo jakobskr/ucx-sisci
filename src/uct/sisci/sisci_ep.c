@@ -274,6 +274,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     sci_packet_t* packet; 
     uct_sci_iface_t* iface = ucs_derived_of(tl_ep->iface, uct_sci_iface_t);
     sci_ctl_t* ctl         = iface->ctls + ep->ctl_offset;
+    sci_error_t;
     uint32_t offset = 0;    
     
     if (ep->seq - ctl->ack >= iface->queue_size) {
@@ -285,8 +286,17 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     ctl->status = 1;
     packet->am_id = id;
     packet->length = length + sizeof(header);
-    uct_am_short_fill_data(ep->buf + offset + sizeof(sci_packet_t), header, payload, length);
-    SCIFlush(NULL, SCI_NO_FLAGS);    
+    //uct_am_short_fill_data(ep->buf + offset + sizeof(sci_packet_t), header, payload, length);
+    
+    struct uct_am_short_packet {
+        uint64_t header;
+        char     payload[];
+    } UCS_S_PACKED *am_packet = (struct uct_am_short_packet*)ep->buf + offset + sizeof(sci_packet_t);
+    am_packet->header = header;
+
+    SCIMemWrite(payload,am_packet->header, length, 0, &sci_error_t);
+    
+    //SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
     SCIFlush(NULL, SCI_NO_FLAGS);
     ep->seq++;
