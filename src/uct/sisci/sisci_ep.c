@@ -298,7 +298,7 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
 
     SCIMemWrite((void*) payload,am_packet->payload, length, 0, &error);
     
-    //SCIFlush(NULL, SCI_NO_FLAGS);    
+    SCIFlush(NULL, SCI_NO_FLAGS);    
     packet->status = 1;
     SCIFlush(NULL, SCI_NO_FLAGS);
     ep->seq++;
