@@ -705,7 +705,7 @@ unsigned uct_sci_iface_progress(uct_iface_h tl_iface) {
             packet->status = 0;
             cd->ctl_buf->status = 0;
             cd->ctl_buf->ack = cd->last_ack + 1; 
-            SCIFlush(NULL, SCI_NO_FLAGS);
+            SCIFlush(NULL, SCI_FLAG_FLUSH_CPU_BUFFERS_ONLY);
             cd->last_ack++;
             found_message = 1;
         }

@@ -286,9 +286,9 @@ ucs_status_t uct_sci_ep_am_short(uct_ep_h tl_ep, uint8_t id, uint64_t header,
     packet->am_id = id;
     packet->length = length + sizeof(header);
     uct_am_short_fill_data(ep->buf + offset + sizeof(sci_packet_t), header, payload, length);
-    SCIFlush(NULL, SCI_NO_FLAGS);    
+    SCIFlush(NULL, SCI_FLAG_FLUSH_CPU_BUFFERS_ONLY);    
     packet->status = 1;
-    SCIFlush(NULL, SCI_NO_FLAGS);
+    SCIFlush(NULL, SCI_FLAG_FLUSH_CPU_BUFFERS_ONLY);
     ep->seq++;
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d SEQ:%d\n", ep->remote_segment_id, ep->remote_node_id, id, packet->length, ep->seq);
     return UCS_OK;
@@ -326,10 +326,10 @@ ssize_t uct_sci_ep_am_bcopy(uct_ep_h tl_ep, uint8_t id,
     length              = pack_cb((void*) packet + sizeof(sci_packet_t),  arg);
     packet->am_id       = id;
     packet->length      = length;
-    SCIFlush(NULL, SCI_NO_FLAGS);
+    SCIFlush(NULL, SCI_FLAG_FLUSH_CPU_BUFFERS_ONLY);
 
     packet->status = 1;
-    SCIFlush(NULL, SCI_NO_FLAGS);
+    SCIFlush(NULL, SCI_FLAG_FLUSH_CPU_BUFFERS_ONLY);
     ep->seq++;
 
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d \n", ep->remote_segment_id, ep->remote_node_id, id, packet->length);
@@ -411,7 +411,7 @@ ucs_status_t uct_sci_ep_am_zcopy(uct_ep_h uct_ep, uint8_t id, const void *header
     //SCIWaitForDMAQueue(iface->dma_queue, SCI_INFINITE_TIMEOUT, SCI_NO_FLAGS, &sci_error);
     ep->seq++;
     sci_header->status = 1;
-    SCIFlush(NULL, SCI_NO_FLAGS);
+    SCIFlush(NULL, SCI_FLAG_FLUSH_CPU_BUFFERS_ONLY);
 
 
     DEBUG_PRINT("EP_SEG %d EP_NOD %d AM_ID %d size %d \n", ep->remote_segment_id, ep->remote_node_id, id, sci_header->length);
