@@ -1,3 +1,10 @@
+<hr>
+
+This repository contains the code which i developed during my master thesis. The code was forked from the official UCX repository.
+
+</hr>
+
+
 <div align="center">
   <a href="http://www.openucx.org/"><img src="./docs/doxygen/UCX_Logo_930x933.png" width="200"></a>
   <br>
@@ -7,6 +14,8 @@
   <a href="https://github.com/openucx/ucx/releases/latest"><img src="docs/doxygen/release.svg"></a>
 </div>
 
+  
+  
 <hr>
 
 # Unified Communication X
